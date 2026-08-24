@@ -2,6 +2,7 @@
 #include "ui_mainwindow.h"
 #include "addtraindialog.h"
 #include "ticketdialog.h"
+#include "querydialog.h"
 #include <QFileDialog>
 #include <QMessageBox>
 
@@ -30,6 +31,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->actionRemoveTrain, &QAction::triggered, this, &MainWindow::onRemoveTrain);
     connect(ui->actionSell, &QAction::triggered, this, &MainWindow::onSellTicket);
     connect(ui->actionRefund, &QAction::triggered, this, &MainWindow::onRefundTicket);
+    connect(ui->actionQuery, &QAction::triggered, this, &MainWindow::onQuery);
     connect(ui->trainTable, &QTableWidget::cellClicked, this, &MainWindow::onTrainSelected);
 }
 
@@ -142,6 +144,12 @@ void MainWindow::onRefundTicket()
         refreshTrainTable();
         ui->statusbar->showMessage("退票成功");
     }
+}
+
+void MainWindow::onQuery()
+{
+    QueryDialog dlg(m_system, this);
+    dlg.exec();
 }
 
 void MainWindow::onTrainSelected(int row, int column)

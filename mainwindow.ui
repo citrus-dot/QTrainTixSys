@@ -72,6 +72,8 @@
     <addaction name="separator"/>
     <addaction name="actionSell"/>
     <addaction name="actionRefund"/>
+    <addaction name="separator"/>
+    <addaction name="actionQuery"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="title">
@@ -143,6 +145,14 @@
   <action name="actionRefund">
    <property name="text">
     <string>退票...</string>
+   </property>
+  </action>
+  <action name="actionQuery">
+   <property name="text">
+    <string>查询...</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Q</string>
    </property>
   </action>
  </widget>
