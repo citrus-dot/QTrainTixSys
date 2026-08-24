@@ -11,6 +11,9 @@ qt_add_executable(09025208_3
     mainwindow.cpp
     mainwindow.h
     mainwindow.ui
+    addtraindialog.cpp
+    addtraindialog.h
+    addtraindialog.ui
     seat.cpp
     train.cpp
     trainsystem.cpp

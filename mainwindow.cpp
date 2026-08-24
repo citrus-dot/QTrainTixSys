@@ -1,5 +1,6 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+#include "addtraindialog.h"
 #include <QFileDialog>
 #include <QMessageBox>
 
@@ -24,6 +25,8 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->actionSave, &QAction::triggered, this, &MainWindow::onSaveFile);
     connect(ui->actionExit, &QAction::triggered, this, &QWidget::close);
     connect(ui->actionAbout, &QAction::triggered, this, &MainWindow::onAbout);
+    connect(ui->actionAddTrain, &QAction::triggered, this, &MainWindow::onAddTrain);
+    connect(ui->actionRemoveTrain, &QAction::triggered, this, &MainWindow::onRemoveTrain);
     connect(ui->trainTable, &QTableWidget::cellClicked, this, &MainWindow::onTrainSelected);
 }
 
@@ -71,6 +74,35 @@ void MainWindow::onSaveFile()
     m_filePath = path;
     setWindowTitle(QString("列车客运售票管理系统 - %1").arg(path));
     ui->statusbar->showMessage(QString("已保存: %1").arg(path));
+}
+
+void MainWindow::onAddTrain()
+{
+    AddTrainDialog dlg(this);
+    if (dlg.exec() != QDialog::Accepted)
+        return;
+    Train t = dlg.getTrain();
+    if (!m_system.addTrain(t)) {
+        QMessageBox::warning(this, "提示", "班次号已存在");
+        return;
+    }
+    refreshTrainTable();
+    ui->statusbar->showMessage(QString("已新增班次 %1").arg(t.no()));
+}
+
+void MainWindow::onRemoveTrain()
+{
+    Train *t = currentTrain();
+    if (!t) {
+        QMessageBox::information(this, "提示", "请先选择一个班次");
+        return;
+    }
+    if (QMessageBox::question(this, "确认", QString("确定删除班次 %1 吗？").arg(t->no())) != QMessageBox::Yes)
+        return;
+    m_system.removeTrain(t->no());
+    refreshTrainTable();
+    refreshSeatTable();
+    ui->statusbar->showMessage(QString("已删除班次 %1").arg(t->no()));
 }
 
 void MainWindow::onTrainSelected(int row, int column)

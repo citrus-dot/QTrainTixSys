@@ -20,6 +20,8 @@ private slots:
     void onNewFile();
     void onOpenFile();
     void onSaveFile();
+    void onAddTrain();
+    void onRemoveTrain();
     void onTrainSelected(int row, int column);
     void onAbout();
 
