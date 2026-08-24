@@ -1,93 +1,46 @@
-# summer2026class1-谷力昊
+# 列车客运售票管理系统 - V1（核心类与文件读写）
 
+## 版本说明
 
+本版本实现系统的**数据层**：三个核心类 + 控制台自测程序，不包含图形界面。
+对应题目要求：创建和管理班次对象、座位对象、数据文件读写。
 
-## Getting started
+## 功能
 
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
+- `Seat` 座位类：保存旅客姓名、身份证号、车厢号、座位号，支持设置/清除旅客
+- `Train` 班次类：保存班次号、发车时间、发车城市、终点城市、车厢数、每厢座位数、座位集合
+  - 售票（座位号不能重复）、退票、余票统计、可选座位号列表、中间停靠站
+- `TrainSystem` 文档类：管理所有班次，支持新增（班次号不重复）、删除、按班次号查找
+- 数据文件读写：所有班次信息 + 每个班次的座位旅客登记信息，保存为 `.dat` 文件
+- 控制台自测：演示创建班次、售票、退票、余票统计、文件读写往返
 
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
-
-## Add your files
-
-* [Create](https://docs.gitlab.com/user/project/repository/web_editor/#create-a-file) or [upload](https://docs.gitlab.com/user/project/repository/web_editor/#upload-a-file) files
-* [Add files using the command line](https://docs.gitlab.com/topics/git/add_files/#add-files-to-a-git-repository) or push an existing Git repository with the following command:
+## 文件结构
 
 ```
-cd existing_repo
-git remote add origin https://gitlab.seu.edu.cn/summer2026class1/summer2026class1-213251605.git
-git branch -M main
-git push -uf origin main
+seat.h / seat.cpp         座位类
+train.h / train.cpp       班次类
+trainsystem.h / trainsystem.cpp   管理系统类（文档类）
+main.cpp                  控制台自测程序
+CMakeLists.txt            构建配置（仅 Qt Core）
 ```
 
-## Integrate with your tools
+## 编译运行
 
-* [Set up project integrations](https://gitlab.seu.edu.cn/summer2026class1/summer2026class1-213251605/-/settings/integrations)
+用 Qt Creator 打开本文件夹的 `CMakeLists.txt`，选择 Qt 6.5+ 套件，构建并运行。
+程序为控制台程序，运行后输出自测结果，例如：
 
-## Collaborate with your team
+```
+班次数: 2
+售票 1车1座: 成功
+售票 1车1座(重复): 失败
+T001 余票: 8
+读盘后 T001 余票: 9
+```
 
-* [Invite team members and collaborators](https://docs.gitlab.com/user/project/members/)
-* [Create a new merge request](https://docs.gitlab.com/user/project/merge_requests/creating_merge_requests/)
-* [Automatically close issues from merge requests](https://docs.gitlab.com/user/project/issues/managing_issues/#closing-issues-automatically)
-* [Enable merge request approvals](https://docs.gitlab.com/user/project/merge_requests/approvals/)
-* [Set auto-merge](https://docs.gitlab.com/user/project/merge_requests/auto_merge/)
+## 测试
 
-## Test and Deploy
-
-Use the built-in continuous integration in GitLab.
-
-* [Get started with GitLab CI/CD](https://docs.gitlab.com/ci/quick_start/)
-* [Analyze your code for known vulnerabilities with Static Application Security Testing (SAST)](https://docs.gitlab.com/user/application_security/sast/)
-* [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/topics/autodevops/requirements/)
-* [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/user/clusters/agent/)
-* [Set up protected environments](https://docs.gitlab.com/ci/environments/protected_environments/)
-
-***
-
-# Editing this README
-
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thanks to [makeareadme.com](https://www.makeareadme.com/) for this template.
-
-## Suggestions for a good README
-
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
-
-## Name
-Choose a self-explaining name for your project.
-
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
-
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
-
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
-
-## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
-
-## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
-
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
-
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
-
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
-
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
-
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
-
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
-
-## License
-For open source projects, say how it is licensed.
-
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+运行 `main.cpp` 中的自测流程，检查：
+- 重复售票被拒绝（座位号不能重复）
+- 空座退票被拒绝
+- 余票数计算正确
+- 保存后重新读取，数据一致
