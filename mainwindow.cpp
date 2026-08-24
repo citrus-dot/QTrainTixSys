@@ -1,6 +1,7 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "addtraindialog.h"
+#include "ticketdialog.h"
 #include <QFileDialog>
 #include <QMessageBox>
 
@@ -27,6 +28,8 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->actionAbout, &QAction::triggered, this, &MainWindow::onAbout);
     connect(ui->actionAddTrain, &QAction::triggered, this, &MainWindow::onAddTrain);
     connect(ui->actionRemoveTrain, &QAction::triggered, this, &MainWindow::onRemoveTrain);
+    connect(ui->actionSell, &QAction::triggered, this, &MainWindow::onSellTicket);
+    connect(ui->actionRefund, &QAction::triggered, this, &MainWindow::onRefundTicket);
     connect(ui->trainTable, &QTableWidget::cellClicked, this, &MainWindow::onTrainSelected);
 }
 
@@ -103,6 +106,42 @@ void MainWindow::onRemoveTrain()
     refreshTrainTable();
     refreshSeatTable();
     ui->statusbar->showMessage(QString("已删除班次 %1").arg(t->no()));
+}
+
+void MainWindow::onSellTicket()
+{
+    Train *t = currentTrain();
+    if (!t) {
+        QMessageBox::information(this, "提示", "请先选择一个班次");
+        return;
+    }
+    TicketDialog dlg(t, this);
+    dlg.setSellMode(true);
+    if (dlg.exec() != QDialog::Accepted)
+        return;
+    if (t->sellTicket(dlg.name(), dlg.id(), dlg.carriage(), dlg.seatNo())) {
+        refreshSeatTable();
+        refreshTrainTable();
+        ui->statusbar->showMessage("售票成功");
+    }
+}
+
+void MainWindow::onRefundTicket()
+{
+    Train *t = currentTrain();
+    if (!t) {
+        QMessageBox::information(this, "提示", "请先选择一个班次");
+        return;
+    }
+    TicketDialog dlg(t, this);
+    dlg.setSellMode(false);
+    if (dlg.exec() != QDialog::Accepted)
+        return;
+    if (t->refundTicket(dlg.carriage(), dlg.seatNo())) {
+        refreshSeatTable();
+        refreshTrainTable();
+        ui->statusbar->showMessage("退票成功");
+    }
 }
 
 void MainWindow::onTrainSelected(int row, int column)

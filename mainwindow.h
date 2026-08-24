@@ -22,6 +22,8 @@ private slots:
     void onSaveFile();
     void onAddTrain();
     void onRemoveTrain();
+    void onSellTicket();
+    void onRefundTicket();
     void onTrainSelected(int row, int column);
     void onAbout();
 

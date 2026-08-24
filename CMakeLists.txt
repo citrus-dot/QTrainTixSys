@@ -14,6 +14,9 @@ qt_add_executable(09025208_3
     addtraindialog.cpp
     addtraindialog.h
     addtraindialog.ui
+    ticketdialog.cpp
+    ticketdialog.h
+    ticketdialog.ui
     seat.cpp
     train.cpp
     trainsystem.cpp

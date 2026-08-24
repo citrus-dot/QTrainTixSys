@@ -69,6 +69,9 @@
     </property>
     <addaction name="actionAddTrain"/>
     <addaction name="actionRemoveTrain"/>
+    <addaction name="separator"/>
+    <addaction name="actionSell"/>
+    <addaction name="actionRefund"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="title">
@@ -130,6 +133,16 @@
   <action name="actionRemoveTrain">
    <property name="text">
     <string>删除班次</string>
+   </property>
+  </action>
+  <action name="actionSell">
+   <property name="text">
+    <string>售票...</string>
+   </property>
+  </action>
+  <action name="actionRefund">
+   <property name="text">
+    <string>退票...</string>
    </property>
   </action>
  </widget>
