@@ -1,0 +1,16 @@
+# 构建目录
+build/
+
+# macOS 系统文件
+.DS_Store
+
+# Qt Creator 用户配置
+*.user
+.qtcreator/
+
+# CMake 生成文件
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+Makefile
+CTestTestfile.cmake
