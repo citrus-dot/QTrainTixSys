@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>420</width>
-    <height>360</height>
+    <height>390</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -31,7 +31,14 @@
    <item>
     <widget class="QLabel" name="infoLabel">
      <property name="text">
-      <string>发车时间: -   发车城市: -   终点城市: -   余票数: -</string>
+      <string>日期: -   发车时间: -   发车城市: -   终点城市: -   余票数: -</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QLabel" name="priceLabel">
+     <property name="text">
+      <string>一等票价: -   二等票价: -</string>
      </property>
     </widget>
    </item>

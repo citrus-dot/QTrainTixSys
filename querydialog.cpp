@@ -28,9 +28,21 @@ void QueryDialog::onTrainChanged()
         return;
     }
     const Train &t = m_system.trains()[index];
-    ui->infoLabel->setText(QString("发车时间: %1   发车城市: %2   终点城市: %3   余票数: %4")
-                           .arg(t.departTime(), t.from(), t.to())
+    ui->infoLabel->setText(QString("日期: %1   发车时间: %2   发车城市: %3   终点城市: %4   余票数: %5")
+                           .arg(t.date(), t.departTime(), t.from(), t.to())
                            .arg(t.remainingSeats()));
+
+    QStringList firstClassList;
+    for (int c = 1; c <= t.carriages(); ++c)
+        if (t.carriageClass(c) == 1)
+            firstClassList << QString::number(c);
+    QString classInfo = firstClassList.isEmpty()
+        ? "一等座: 无"
+        : "一等座: " + firstClassList.join(",") + "号车厢";
+    ui->priceLabel->setText(QString("一等票价: %1 元   二等票价: %2 元   %3")
+                            .arg(t.firstClassPrice(), 0, 'f', 2)
+                            .arg(t.secondClassPrice(), 0, 'f', 2)
+                            .arg(classInfo));
 
     ui->seatList->clear();
     const QVector<int> seats = t.availableSeats();

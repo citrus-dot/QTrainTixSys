@@ -47,6 +47,10 @@ void TicketDialog::accept()
             QMessageBox::warning(this, "提示", "姓名和身份证号不能为空");
             return;
         }
+        if (!Train::isValidId(id())) {
+            QMessageBox::warning(this, "提示", "身份证号格式不正确（18位）");
+            return;
+        }
         if (occupied) {
             QMessageBox::warning(this, "提示", "该座位已被占用");
             return;

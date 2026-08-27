@@ -12,8 +12,8 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
 
-    ui->trainTable->setColumnCount(7);
-    ui->trainTable->setHorizontalHeaderLabels({"班次号", "发车时间", "发车城市", "终点城市", "车厢数", "每厢座位数", "余票"});
+    ui->trainTable->setColumnCount(8);
+    ui->trainTable->setHorizontalHeaderLabels({"班次号", "发车日期", "发车时间", "发车城市", "终点城市", "车厢数", "每厢座位数", "余票"});
     ui->trainTable->horizontalHeader()->setStretchLastSection(true);
     ui->trainTable->setSelectionBehavior(QAbstractItemView::SelectRows);
 
@@ -170,12 +170,13 @@ void MainWindow::refreshTrainTable()
     for (int i = 0; i < trains.size(); ++i) {
         const Train &t = trains[i];
         ui->trainTable->setItem(i, 0, new QTableWidgetItem(t.no()));
-        ui->trainTable->setItem(i, 1, new QTableWidgetItem(t.departTime()));
-        ui->trainTable->setItem(i, 2, new QTableWidgetItem(t.from()));
-        ui->trainTable->setItem(i, 3, new QTableWidgetItem(t.to()));
-        ui->trainTable->setItem(i, 4, new QTableWidgetItem(QString::number(t.carriages())));
-        ui->trainTable->setItem(i, 5, new QTableWidgetItem(QString::number(t.seatsPerCarriage())));
-        ui->trainTable->setItem(i, 6, new QTableWidgetItem(QString::number(t.remainingSeats())));
+        ui->trainTable->setItem(i, 1, new QTableWidgetItem(t.date()));
+        ui->trainTable->setItem(i, 2, new QTableWidgetItem(t.departTime()));
+        ui->trainTable->setItem(i, 3, new QTableWidgetItem(t.from()));
+        ui->trainTable->setItem(i, 4, new QTableWidgetItem(t.to()));
+        ui->trainTable->setItem(i, 5, new QTableWidgetItem(QString::number(t.carriages())));
+        ui->trainTable->setItem(i, 6, new QTableWidgetItem(QString::number(t.seatsPerCarriage())));
+        ui->trainTable->setItem(i, 7, new QTableWidgetItem(QString::number(t.remainingSeats())));
     }
 }
 
