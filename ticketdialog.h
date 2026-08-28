@@ -24,9 +24,24 @@ public:
 protected:
     void accept() override;
 
+private slots:
+    void onCarriageChanged();
+    void onSeatClicked(int row, int col);
+
 private:
+    void rebuildSeatGrid();
+    void styleSeatItem(int row, int col);
+    void clearSelection();
+    void updateInfoLabel();
+
     Ui::TicketDialog *ui;
     Train *m_train;
+    bool m_sell = true;
+    int m_selectedCarriage = 1;
+    int m_selectedSeat = 0;
+    int m_selectedRow = -1;
+    int m_selectedCol = -1;
+    static constexpr int SeatsPerRow = 5;
 };
 
 #endif // TICKETDIALOG_H
