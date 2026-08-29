@@ -2,6 +2,7 @@
 #include "ui_mainwindow.h"
 #include "addtraindialog.h"
 #include "ticketdialog.h"
+#include "ticketview.h"
 #include "querydialog.h"
 #include <QFileDialog>
 #include <QMessageBox>
@@ -125,6 +126,10 @@ void MainWindow::onSellTicket()
         refreshSeatTable();
         refreshTrainTable();
         ui->statusbar->showMessage("售票成功");
+        TicketView view(t, dlg.name(), dlg.id(), dlg.carriage(), dlg.seatNo(), this);
+        view.exec();
+    } else {
+        QMessageBox::warning(this, "提示", "售票失败");
     }
 }
 
