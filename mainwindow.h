@@ -26,12 +26,13 @@ private slots:
     void onRefundTicket();
     void onQuery();
     void onTrainSelected(int row, int column);
+    void onSearchChanged(const QString &text);
     void onAbout();
 
 private:
     void refreshTrainTable();
     void refreshSeatTable();
-    Train *currentTrain() const;
+    Train *currentTrain();
 
     Ui::MainWindow *ui;
     TrainSystem m_system;

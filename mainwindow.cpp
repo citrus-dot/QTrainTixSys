@@ -34,6 +34,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->actionRefund, &QAction::triggered, this, &MainWindow::onRefundTicket);
     connect(ui->actionQuery, &QAction::triggered, this, &MainWindow::onQuery);
     connect(ui->trainTable, &QTableWidget::cellClicked, this, &MainWindow::onTrainSelected);
+    connect(ui->searchEdit, &QLineEdit::textChanged, this, &MainWindow::onSearchChanged);
 }
 
 MainWindow::~MainWindow()
@@ -168,20 +169,37 @@ void MainWindow::onAbout()
     QMessageBox::about(this, "关于", "列车客运售票管理系统\n课程设计作业");
 }
 
+void MainWindow::onSearchChanged(const QString &text)
+{
+    Q_UNUSED(text);
+    refreshTrainTable();
+    refreshSeatTable();
+}
+
 void MainWindow::refreshTrainTable()
 {
     const QVector<Train> &trains = m_system.trains();
-    ui->trainTable->setRowCount(trains.size());
-    for (int i = 0; i < trains.size(); ++i) {
-        const Train &t = trains[i];
-        ui->trainTable->setItem(i, 0, new QTableWidgetItem(t.no()));
-        ui->trainTable->setItem(i, 1, new QTableWidgetItem(t.date()));
-        ui->trainTable->setItem(i, 2, new QTableWidgetItem(t.departTime()));
-        ui->trainTable->setItem(i, 3, new QTableWidgetItem(t.from()));
-        ui->trainTable->setItem(i, 4, new QTableWidgetItem(t.to()));
-        ui->trainTable->setItem(i, 5, new QTableWidgetItem(QString::number(t.carriages())));
-        ui->trainTable->setItem(i, 6, new QTableWidgetItem(QString::number(t.seatsPerCarriage())));
-        ui->trainTable->setItem(i, 7, new QTableWidgetItem(QString::number(t.remainingSeats())));
+    const QString keyword = ui->searchEdit->text().trimmed();
+    ui->trainTable->setRowCount(0);
+    int row = 0;
+    for (const Train &t : trains) {
+        if (!keyword.isEmpty()
+            && !t.no().contains(keyword, Qt::CaseInsensitive)
+            && !t.from().contains(keyword, Qt::CaseInsensitive)
+            && !t.to().contains(keyword, Qt::CaseInsensitive))
+            continue;
+        QTableWidgetItem *noItem = new QTableWidgetItem(t.no());
+        noItem->setData(Qt::UserRole, t.no());
+        ui->trainTable->insertRow(row);
+        ui->trainTable->setItem(row, 0, noItem);
+        ui->trainTable->setItem(row, 1, new QTableWidgetItem(t.date()));
+        ui->trainTable->setItem(row, 2, new QTableWidgetItem(t.departTime()));
+        ui->trainTable->setItem(row, 3, new QTableWidgetItem(t.from()));
+        ui->trainTable->setItem(row, 4, new QTableWidgetItem(t.to()));
+        ui->trainTable->setItem(row, 5, new QTableWidgetItem(QString::number(t.carriages())));
+        ui->trainTable->setItem(row, 6, new QTableWidgetItem(QString::number(t.seatsPerCarriage())));
+        ui->trainTable->setItem(row, 7, new QTableWidgetItem(QString::number(t.remainingSeats())));
+        ++row;
     }
 }
 
@@ -202,10 +220,13 @@ void MainWindow::refreshSeatTable()
     }
 }
 
-Train *MainWindow::currentTrain() const
+Train *MainWindow::currentTrain()
 {
     int row = ui->trainTable->currentRow();
-    if (row < 0 || row >= m_system.trains().size())
+    if (row < 0)
         return nullptr;
-    return const_cast<Train *>(&m_system.trains()[row]);
+    QTableWidgetItem *item = ui->trainTable->item(row, 0);
+    if (!item)
+        return nullptr;
+    return m_system.findTrain(item->data(Qt::UserRole).toString());
 }
