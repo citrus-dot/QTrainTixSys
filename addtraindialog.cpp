@@ -48,6 +48,10 @@ void AddTrainDialog::accept()
         QMessageBox::warning(this, "提示", "班次号不能为空");
         return;
     }
+    if (ui->fromEdit->text().trimmed().isEmpty() || ui->toEdit->text().trimmed().isEmpty()) {
+        QMessageBox::warning(this, "提示", "发车城市和终点城市不能为空");
+        return;
+    }
     if (!Train::isValidTime(ui->timeEdit->text().trimmed())) {
         QMessageBox::warning(this, "提示", "发车时间格式应为 HH:MM");
         return;

@@ -46,12 +46,14 @@ int Train::remainingSeats() const
     return count;
 }
 
-QVector<int> Train::availableSeats() const
+QVector<int> Train::availableSeats(int carriage) const
 {
     QVector<int> result;
-    for (int i = 0; i < m_seats.size(); ++i)
-        if (m_seats[i].isEmpty())
-            result.append(i + 1);
+    if (carriage < 1 || carriage > m_carriages)
+        return result;
+    for (int s = 1; s <= m_seatsPerCarriage; ++s)
+        if (!isSeatOccupied(carriage, s))
+            result.append(s);
     return result;
 }
 
@@ -69,12 +71,6 @@ QStringList Train::stops() const { return m_stops; }
 
 double Train::firstClassPrice() const { return m_firstClassPrice; }
 double Train::secondClassPrice() const { return m_secondClassPrice; }
-
-void Train::setPrices(double first, double second)
-{
-    m_firstClassPrice = first;
-    m_secondClassPrice = second;
-}
 
 int Train::carriageClass(int carriage) const
 {

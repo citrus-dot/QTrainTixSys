@@ -19,7 +19,7 @@ public:
     bool refundTicket(int carriage, int seatNo);                                       // 退票
 
     int remainingSeats() const;          // 余票数
-    QVector<int> availableSeats() const; // 可选座位号列表
+    QVector<int> availableSeats(int carriage) const; // 指定车厢的可选座位号
 
     QString no() const;
     QString date() const;
@@ -35,7 +35,6 @@ public:
 
     double firstClassPrice() const;  // 一等票价
     double secondClassPrice() const; // 二等票价
-    void setPrices(double first, double second);
     int carriageClass(int carriage) const;          // 1=一等 2=二等
     void setCarriageClass(const QVector<int> &classes);
     QString carriageClassText(int carriage) const;  // "一等座"/"二等座"

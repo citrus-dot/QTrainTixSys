@@ -46,6 +46,7 @@ void MainWindow::onNewFile()
 {
     m_system = TrainSystem();
     m_filePath.clear();
+    ui->searchEdit->clear();
     refreshTrainTable();
     refreshSeatTable();
     setWindowTitle("列车客运售票管理系统");
@@ -61,6 +62,7 @@ void MainWindow::onOpenFile()
         return;
     }
     m_filePath = path;
+    ui->searchEdit->clear();
     refreshTrainTable();
     refreshSeatTable();
     setWindowTitle(QString("列车客运售票管理系统 - %1").arg(path));
@@ -210,13 +212,16 @@ void MainWindow::refreshSeatTable()
     if (!t)
         return;
     const QVector<Seat> &seats = t->seats();
-    ui->seatTable->setRowCount(seats.size());
-    for (int i = 0; i < seats.size(); ++i) {
-        const Seat &s = seats[i];
-        ui->seatTable->setItem(i, 0, new QTableWidgetItem(QString::number(s.carriage())));
-        ui->seatTable->setItem(i, 1, new QTableWidgetItem(QString::number(s.seatNo())));
-        ui->seatTable->setItem(i, 2, new QTableWidgetItem(s.isEmpty() ? "空闲" : s.name()));
-        ui->seatTable->setItem(i, 3, new QTableWidgetItem(s.isEmpty() ? "-" : s.id()));
+    int row = 0;
+    for (const Seat &s : seats) {
+        if (s.isEmpty())
+            continue;
+        ui->seatTable->insertRow(row);
+        ui->seatTable->setItem(row, 0, new QTableWidgetItem(QString::number(s.carriage())));
+        ui->seatTable->setItem(row, 1, new QTableWidgetItem(QString::number(s.seatNo())));
+        ui->seatTable->setItem(row, 2, new QTableWidgetItem(s.name()));
+        ui->seatTable->setItem(row, 3, new QTableWidgetItem(s.id()));
+        ++row;
     }
 }
 

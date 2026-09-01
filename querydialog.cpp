@@ -45,9 +45,11 @@ void QueryDialog::onTrainChanged()
                             .arg(classInfo));
 
     ui->seatList->clear();
-    const QVector<int> seats = t.availableSeats();
-    for (int s : seats)
-        ui->seatList->addItem(QString::number(s));
+    for (int c = 1; c <= t.carriages(); ++c) {
+        const QVector<int> seats = t.availableSeats(c);
+        for (int s : seats)
+            ui->seatList->addItem(QString("%1号车厢 %2号座").arg(c).arg(s));
+    }
 
     ui->stopList->clear();
     const QStringList stops = t.stops();
