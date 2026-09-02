@@ -51,3 +51,20 @@ target_link_libraries(tst_train
 target_include_directories(tst_train PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 
 add_test(NAME tst_train COMMAND tst_train)
+
+qt_add_executable(tst_system
+    tests/tst_system.cpp
+    seat.cpp
+    train.cpp
+    trainsystem.cpp
+)
+
+target_link_libraries(tst_system
+    PRIVATE
+        Qt::Core
+        Qt::Test
+)
+
+target_include_directories(tst_system PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+
+add_test(NAME tst_system COMMAND tst_system)
