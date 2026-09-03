@@ -162,6 +162,13 @@
               </widget>
              </item>
              <item>
+              <widget class="QPushButton" name="seatButton">
+               <property name="text">
+                <string>座位登记</string>
+               </property>
+              </widget>
+             </item>
+             <item>
               <spacer name="actionSpacer">
                <property name="orientation">
                 <enum>Qt::Horizontal</enum>
@@ -177,13 +184,7 @@
             </layout>
            </item>
            <item>
-            <widget class="QSplitter" name="splitter">
-             <property name="orientation">
-              <enum>Qt::Horizontal</enum>
-             </property>
-             <widget class="TrainListView" name="trainListView"/>
-             <widget class="SeatTableView" name="seatTableView"/>
-            </widget>
+            <widget class="TrainListView" name="trainListView"/>
            </item>
           </layout>
          </widget>
@@ -290,12 +291,6 @@
    <class>TrainListView</class>
    <extends>QWidget</extends>
    <header>trainlistview.h</header>
-   <container>1</container>
-  </customwidget>
-  <customwidget>
-   <class>SeatTableView</class>
-   <extends>QWidget</extends>
-   <header>seattableview.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>

@@ -8,8 +8,10 @@
 class QLabel;
 class QLineEdit;
 class QTableWidget;
+class QFrame;
+class QStackedLayout;
 
-// 班次列表组件：标题 + 搜索框 + 班次表格 + 空状态引导
+// 班次列表组件：标题 + 搜索框 + 班次表格 + 空状态引导（置于表格框内）
 class TrainListView : public QWidget
 {
     Q_OBJECT
@@ -31,9 +33,12 @@ private slots:
 
 private:
     QLabel *m_title;
-    QLabel *m_emptyHint;
     QLineEdit *m_searchEdit;
     QTableWidget *m_table;
+    QFrame *m_emptyFrame;
+    QLabel *m_emptyIcon;
+    QLabel *m_emptyHint;
+    QStackedLayout *m_stack;
     QVector<Train> m_trains;
 };
 

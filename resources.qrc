@@ -3,11 +3,20 @@
         <file>icons/nav-train.svg</file>
         <file>icons/nav-search.svg</file>
         <file>icons/action-add.svg</file>
+        <file>icons/action-add-white.svg</file>
         <file>icons/action-delete.svg</file>
+        <file>icons/action-delete-white.svg</file>
         <file>icons/action-ticket.svg</file>
+        <file>icons/action-ticket-white.svg</file>
         <file>icons/action-refund.svg</file>
+        <file>icons/action-refund-white.svg</file>
+        <file>icons/action-seat.svg</file>
+        <file>icons/action-seat-white.svg</file>
+        <file>icons/chevron-down.png</file>
         <file>icons/file-open.svg</file>
+        <file>icons/file-open-white.svg</file>
         <file>icons/file-save.svg</file>
+        <file>icons/file-save-white.svg</file>
         <file>icons/about.svg</file>
         <file>theme.qss</file>
     </qresource>

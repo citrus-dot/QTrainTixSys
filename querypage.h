@@ -4,6 +4,9 @@
 #include <QWidget>
 #include "trainsystem.h"
 
+class QListWidgetItem;
+class SeatMapPopup;
+
 QT_BEGIN_NAMESPACE
 namespace Ui { class QueryPage; }
 QT_END_NAMESPACE
@@ -21,10 +24,13 @@ public:
 
 private slots:
     void onTrainChanged();
+    void onSeatClicked(QListWidgetItem *item);
+    void onStopClicked(QListWidgetItem *item);
 
 private:
     Ui::QueryPage *ui;
     const TrainSystem *m_system = nullptr;
+    SeatMapPopup *m_seatPopup = nullptr;
 };
 
 #endif // QUERYPAGE_H

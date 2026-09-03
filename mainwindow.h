@@ -26,13 +26,14 @@ private slots:
     void onRemoveTrain();
     void onSellTicket();
     void onRefundTicket();
+    void onSeatTable();
     void onQuery();
     void onAbout();
     void onPageSelected(int index);
+    void onTrainSelectionChanged(const QString &no);
 
 private:
     void refreshTrainList();
-    void refreshSeatTable();
     void updateStats();
     Train *currentTrain();
 

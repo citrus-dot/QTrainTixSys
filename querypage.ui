@@ -62,21 +62,256 @@
      </property>
      <layout class="QVBoxLayout" name="cardLayout">
       <property name="spacing">
-       <number>8</number>
+       <number>10</number>
+      </property>
+      <property name="leftMargin">
+       <number>16</number>
+      </property>
+      <property name="topMargin">
+       <number>14</number>
+      </property>
+      <property name="rightMargin">
+       <number>16</number>
+      </property>
+      <property name="bottomMargin">
+       <number>14</number>
       </property>
       <item>
-       <widget class="QLabel" name="infoLabel">
-        <property name="text">
-         <string>日期: -    发车时间: -    发车城市: -    终点城市: -    余票数: -</string>
+       <layout class="QGridLayout" name="infoGrid">
+        <property name="horizontalSpacing">
+         <number>28</number>
+        </property>
+        <item row="0" column="0">
+         <layout class="QVBoxLayout" name="dateField">
+          <property name="spacing">
+           <number>2</number>
+          </property>
+          <item>
+           <widget class="QLabel" name="dateCaption">
+            <property name="text">
+             <string>日期</string>
+            </property>
+            <property name="field" stdset="0">
+             <string>caption</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="dateValue">
+            <property name="text">
+             <string>-</string>
+            </property>
+            <property name="field" stdset="0">
+             <string>value</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item row="0" column="1">
+         <layout class="QVBoxLayout" name="timeField">
+          <property name="spacing">
+           <number>2</number>
+          </property>
+          <item>
+           <widget class="QLabel" name="timeCaption">
+            <property name="text">
+             <string>发车时间</string>
+            </property>
+            <property name="field" stdset="0">
+             <string>caption</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="timeValue">
+            <property name="text">
+             <string>-</string>
+            </property>
+            <property name="field" stdset="0">
+             <string>value</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item row="0" column="2">
+         <layout class="QVBoxLayout" name="fromField">
+          <property name="spacing">
+           <number>2</number>
+          </property>
+          <item>
+           <widget class="QLabel" name="fromCaption">
+            <property name="text">
+             <string>发车城市</string>
+            </property>
+            <property name="field" stdset="0">
+             <string>caption</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="fromValue">
+            <property name="text">
+             <string>-</string>
+            </property>
+            <property name="field" stdset="0">
+             <string>value</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item row="0" column="3">
+         <layout class="QVBoxLayout" name="toField">
+          <property name="spacing">
+           <number>2</number>
+          </property>
+          <item>
+           <widget class="QLabel" name="toCaption">
+            <property name="text">
+             <string>终点城市</string>
+            </property>
+            <property name="field" stdset="0">
+             <string>caption</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="toValue">
+            <property name="text">
+             <string>-</string>
+            </property>
+            <property name="field" stdset="0">
+             <string>value</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <widget class="QFrame" name="infoSeparator">
+        <property name="frameShape">
+         <enum>QFrame::NoFrame</enum>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QLabel" name="priceLabel">
-        <property name="text">
-         <string>一等票价: -    二等票价: -</string>
+       <layout class="QGridLayout" name="infoGrid2">
+        <property name="horizontalSpacing">
+         <number>28</number>
         </property>
-       </widget>
+        <item row="0" column="0">
+         <layout class="QVBoxLayout" name="remainingField">
+          <property name="spacing">
+           <number>2</number>
+          </property>
+          <item>
+           <widget class="QLabel" name="remainingCaption">
+            <property name="text">
+             <string>余票数</string>
+            </property>
+            <property name="field" stdset="0">
+             <string>caption</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="remainingValue">
+            <property name="text">
+             <string>-</string>
+            </property>
+            <property name="field" stdset="0">
+             <string>value</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item row="0" column="1">
+         <layout class="QVBoxLayout" name="firstPriceField">
+          <property name="spacing">
+           <number>2</number>
+          </property>
+          <item>
+           <widget class="QLabel" name="firstPriceCaption">
+            <property name="text">
+             <string>一等票价</string>
+            </property>
+            <property name="field" stdset="0">
+             <string>caption</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="firstPriceValue">
+            <property name="text">
+             <string>-</string>
+            </property>
+            <property name="field" stdset="0">
+             <string>value</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item row="0" column="2">
+         <layout class="QVBoxLayout" name="secondPriceField">
+          <property name="spacing">
+           <number>2</number>
+          </property>
+          <item>
+           <widget class="QLabel" name="secondPriceCaption">
+            <property name="text">
+             <string>二等票价</string>
+            </property>
+            <property name="field" stdset="0">
+             <string>caption</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="secondPriceValue">
+            <property name="text">
+             <string>-</string>
+            </property>
+            <property name="field" stdset="0">
+             <string>value</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item row="0" column="3">
+         <layout class="QVBoxLayout" name="firstClassField">
+          <property name="spacing">
+           <number>2</number>
+          </property>
+          <item>
+           <widget class="QLabel" name="firstClassCaption">
+            <property name="text">
+             <string>一等座车厢</string>
+            </property>
+            <property name="field" stdset="0">
+             <string>caption</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="firstClassValue">
+            <property name="text">
+             <string>-</string>
+            </property>
+            <property name="field" stdset="0">
+             <string>value</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+       </layout>
       </item>
      </layout>
     </widget>

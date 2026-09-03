@@ -3,10 +3,12 @@
 #include "addtraindialog.h"
 #include "ticketdialog.h"
 #include "ticketview.h"
+#include "seattabledialog.h"
 #include <QFileDialog>
 #include <QMessageBox>
 #include <QIcon>
 #include <QLabel>
+#include <QStyle>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -18,11 +20,12 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->openButton, &QPushButton::clicked, this, &MainWindow::onOpenFile);
     connect(ui->saveButton, &QPushButton::clicked, this, &MainWindow::onSaveFile);
 
-    // 操作按钮：新增/删除/售票/退票
+    // 操作按钮：新增/删除/售票/退票/座位登记
     connect(ui->addButton, &QPushButton::clicked, this, &MainWindow::onAddTrain);
     connect(ui->removeButton, &QPushButton::clicked, this, &MainWindow::onRemoveTrain);
     connect(ui->sellButton, &QPushButton::clicked, this, &MainWindow::onSellTicket);
     connect(ui->refundButton, &QPushButton::clicked, this, &MainWindow::onRefundTicket);
+    connect(ui->seatButton, &QPushButton::clicked, this, &MainWindow::onSeatTable);
 
     // 菜单
     connect(ui->actionNew, &QAction::triggered, this, &MainWindow::onNewFile);
@@ -35,21 +38,21 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->sidebar, &SidebarWidget::pageSelected, this, &MainWindow::onPageSelected);
     connect(ui->sidebar, &SidebarWidget::aboutClicked, this, &MainWindow::onAbout);
 
-    // 班次列表：选中刷新座位表，双击直接售票
-    connect(ui->trainListView, &TrainListView::trainSelected, this, &MainWindow::refreshSeatTable);
+    // 班次列表：选中变化联动按钮状态，双击直接售票
+    connect(ui->trainListView, &TrainListView::trainSelected, this, &MainWindow::onTrainSelectionChanged);
     connect(ui->trainListView, &TrainListView::trainDoubleClicked, this, &MainWindow::onSellTicket);
 
     // 查询页绑定数据源
     ui->queryPageWidget->setSystem(&m_system);
 
-    // 按钮图标与主操作强调
+    // 按钮图标（悬停变白由 QSS 处理）
     ui->openButton->setIcon(QIcon(":/icons/file-open.svg"));
     ui->saveButton->setIcon(QIcon(":/icons/file-save.svg"));
     ui->addButton->setIcon(QIcon(":/icons/action-add.svg"));
     ui->removeButton->setIcon(QIcon(":/icons/action-delete.svg"));
     ui->sellButton->setIcon(QIcon(":/icons/action-ticket.svg"));
     ui->refundButton->setIcon(QIcon(":/icons/action-refund.svg"));
-    ui->sellButton->setProperty("primary", true);
+    ui->seatButton->setIcon(QIcon(":/icons/action-seat.svg"));
 
     // 状态栏常驻统计
     m_statsLabel = new QLabel(this);
@@ -58,6 +61,11 @@ MainWindow::MainWindow(QWidget *parent)
     // 默认进入班次管理页
     ui->sidebar->setCurrentPage(0);
     onPageSelected(0);
+
+    // 初始刷新：触发班次列表空状态引导与查询页初始化
+    refreshTrainList();
+    // 初始无选中班次，禁用依赖选中行的操作按钮
+    onTrainSelectionChanged(QString());
 }
 
 MainWindow::~MainWindow()
@@ -71,7 +79,6 @@ void MainWindow::onNewFile()
     m_filePath.clear();
     ui->trainListView->clearSearch();
     refreshTrainList();
-    refreshSeatTable();
     setWindowTitle("列车客运售票管理系统");
     ui->statusbar->showMessage("已新建空数据", 3000);
 }
@@ -88,7 +95,6 @@ void MainWindow::onOpenFile()
     m_filePath = path;
     ui->trainListView->clearSearch();
     refreshTrainList();
-    refreshSeatTable();
     setWindowTitle(QString("列车客运售票管理系统 - %1").arg(path));
     ui->statusbar->showMessage(QString("已打开: %1").arg(path), 3000);
 }
@@ -137,7 +143,6 @@ void MainWindow::onRemoveTrain()
         return;
     m_system.removeTrain(t->no());
     refreshTrainList();
-    refreshSeatTable();
     ui->statusbar->showMessage(QString("已删除班次 %1").arg(t->no()), 3000);
 }
 
@@ -153,7 +158,6 @@ void MainWindow::onSellTicket()
     if (dlg.exec() != QDialog::Accepted)
         return;
     if (t->sellTicket(dlg.name(), dlg.id(), dlg.carriage(), dlg.seatNo())) {
-        refreshSeatTable();
         refreshTrainList();
         ui->statusbar->showMessage("售票成功", 3000);
         TicketView view(t, dlg.name(), dlg.id(), dlg.carriage(), dlg.seatNo(), this);
@@ -175,7 +179,6 @@ void MainWindow::onRefundTicket()
     if (dlg.exec() != QDialog::Accepted)
         return;
     if (t->refundTicket(dlg.carriage(), dlg.seatNo())) {
-        refreshSeatTable();
         refreshTrainList();
         ui->statusbar->showMessage("退票成功", 3000);
     }
@@ -194,6 +197,27 @@ void MainWindow::onAbout()
                        "<p>支持班次管理、售票退票、余票查询、车票导出</p>");
 }
 
+void MainWindow::onSeatTable()
+{
+    Train *t = currentTrain();
+    if (!t) {
+        QMessageBox::information(this, "提示", "请先在左侧选择一个班次");
+        return;
+    }
+    SeatTableDialog dlg(this);
+    dlg.setTrain(t);
+    dlg.exec();
+}
+
+void MainWindow::onTrainSelectionChanged(const QString &no)
+{
+    const bool has = !no.isEmpty();
+    ui->removeButton->setEnabled(has);
+    ui->sellButton->setEnabled(has);
+    ui->refundButton->setEnabled(has);
+    ui->seatButton->setEnabled(has);
+}
+
 void MainWindow::onPageSelected(int index)
 {
     ui->pages->setCurrentIndex(index);
@@ -205,11 +229,6 @@ void MainWindow::refreshTrainList()
     ui->trainListView->setTrains(m_system.trains());
     ui->queryPageWidget->refresh();
     updateStats();
-}
-
-void MainWindow::refreshSeatTable()
-{
-    ui->seatTableView->setTrain(currentTrain());
 }
 
 void MainWindow::updateStats()

@@ -1,5 +1,9 @@
 #include "querypage.h"
 #include "ui_querypage.h"
+#include "seatmappopup.h"
+#include <QListWidgetItem>
+#include <QToolTip>
+#include <QCursor>
 
 QueryPage::QueryPage(QWidget *parent)
     : QWidget(parent)
@@ -7,6 +11,8 @@ QueryPage::QueryPage(QWidget *parent)
 {
     ui->setupUi(this);
     connect(ui->comboTrain, &QComboBox::currentIndexChanged, this, &QueryPage::onTrainChanged);
+    connect(ui->seatList, &QListWidget::itemClicked, this, &QueryPage::onSeatClicked);
+    connect(ui->stopList, &QListWidget::itemClicked, this, &QueryPage::onStopClicked);
 }
 
 QueryPage::~QueryPage()
@@ -36,46 +42,79 @@ void QueryPage::refresh()
 
 void QueryPage::onTrainChanged()
 {
-    if (!m_system || m_system->trains().isEmpty()) {
-        ui->infoLabel->setText("暂无班次数据\n请先在「班次管理」页新增班次或打开数据文件");
-        ui->priceLabel->clear();
+    const bool hasData = m_system && !m_system->trains().isEmpty()
+                         && ui->comboTrain->currentIndex() >= 0
+                         && ui->comboTrain->currentIndex() < m_system->trains().size();
+    if (!hasData) {
+        ui->dateValue->setText("-");
+        ui->timeValue->setText("-");
+        ui->fromValue->setText("-");
+        ui->toValue->setText("-");
+        ui->remainingValue->setText("-");
+        ui->firstPriceValue->setText("-");
+        ui->secondPriceValue->setText("-");
+        ui->firstClassValue->setText("-");
         ui->seatList->clear();
         ui->stopList->clear();
         return;
     }
-    const int index = ui->comboTrain->currentIndex();
-    if (index < 0 || index >= m_system->trains().size()) {
-        ui->infoLabel->setText("暂无班次数据\n请先在「班次管理」页新增班次或打开数据文件");
-        ui->priceLabel->clear();
-        ui->seatList->clear();
-        ui->stopList->clear();
-        return;
-    }
-    const Train &t = m_system->trains()[index];
-    ui->infoLabel->setText(QString("日期: %1    发车时间: %2    发车城市: %3    终点城市: %4    余票数: %5")
-                           .arg(t.date(), t.departTime(), t.from(), t.to())
-                           .arg(t.remainingSeats()));
+
+    const Train &t = m_system->trains()[ui->comboTrain->currentIndex()];
+    ui->dateValue->setText(t.date());
+    ui->timeValue->setText(t.departTime());
+    ui->fromValue->setText(t.from());
+    ui->toValue->setText(t.to());
+    ui->remainingValue->setText(QString::number(t.remainingSeats()));
+    ui->firstPriceValue->setText(QString("¥ %1").arg(t.firstClassPrice(), 0, 'f', 2));
+    ui->secondPriceValue->setText(QString("¥ %1").arg(t.secondClassPrice(), 0, 'f', 2));
 
     QStringList firstClassList;
     for (int c = 1; c <= t.carriages(); ++c)
         if (t.carriageClass(c) == 1)
             firstClassList << QString::number(c);
-    const QString classInfo = firstClassList.isEmpty()
-        ? "一等座: 无"
-        : "一等座: " + firstClassList.join(",") + "号车厢";
-    ui->priceLabel->setText(QString("一等票价: %1 元    二等票价: %2 元    %3")
-                            .arg(t.firstClassPrice(), 0, 'f', 2)
-                            .arg(t.secondClassPrice(), 0, 'f', 2)
-                            .arg(classInfo));
+    ui->firstClassValue->setText(firstClassList.isEmpty() ? "无" : firstClassList.join(",") + "号车厢");
 
     ui->seatList->clear();
     for (int c = 1; c <= t.carriages(); ++c) {
         const QVector<int> seats = t.availableSeats(c);
-        for (int s : seats)
-            ui->seatList->addItem(QString("%1号车厢 %2号座").arg(c).arg(s));
+        for (int s : seats) {
+            auto *item = new QListWidgetItem(QString("%1号车厢 %2号座").arg(c).arg(s));
+            item->setData(Qt::UserRole, c);
+            item->setData(Qt::UserRole + 1, s);
+            ui->seatList->addItem(item);
+        }
     }
 
     ui->stopList->clear();
-    for (const QString &s : t.stops())
-        ui->stopList->addItem(s);
+    int idx = 0;
+    for (const QString &s : t.stops()) {
+        auto *item = new QListWidgetItem(s);
+        item->setData(Qt::UserRole, idx);
+        ui->stopList->addItem(item);
+        ++idx;
+    }
+}
+
+void QueryPage::onSeatClicked(QListWidgetItem *item)
+{
+    if (!m_system || m_system->trains().isEmpty())
+        return;
+    const int carriage = item->data(Qt::UserRole).toInt();
+    const int seatNo = item->data(Qt::UserRole + 1).toInt();
+    const Train &t = m_system->trains()[ui->comboTrain->currentIndex()];
+
+    if (m_seatPopup) {
+        m_seatPopup->deleteLater();
+        m_seatPopup = nullptr;
+    }
+    m_seatPopup = new SeatMapPopup(t, carriage, seatNo, this);
+    m_seatPopup->showNear(QCursor::pos());
+}
+
+void QueryPage::onStopClicked(QListWidgetItem *item)
+{
+    const int idx = item->data(Qt::UserRole).toInt();
+    QToolTip::showText(QCursor::pos(),
+                       QString("第 %1 站 · 途经站").arg(idx + 1),
+                       ui->stopList);
 }

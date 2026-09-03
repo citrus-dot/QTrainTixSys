@@ -4,6 +4,7 @@
 #include <QFileDialog>
 #include <QTextStream>
 #include <QMessageBox>
+#include <QStyle>
 
 TicketView::TicketView(const Train *train, const QString &name, const QString &id,
                        int carriage, int seatNo, QWidget *parent)
@@ -26,6 +27,10 @@ TicketView::TicketView(const Train *train, const QString &name, const QString &i
     ui->classLabel->setText(train->carriageClassText(carriage));
     ui->priceLabel->setText(QString("¥ %1").arg(train->priceOf(carriage), 0, 'f', 2));
     ui->saveButton->setProperty("primary", true);
+    // 强制刷新样式，确保 QSS 属性选择器立即生效
+    ui->saveButton->style()->unpolish(ui->saveButton);
+    ui->saveButton->style()->polish(ui->saveButton);
+    ui->saveButton->update();
     connect(ui->saveButton, &QPushButton::clicked, this, &TicketView::onSaveTicket);
 }
 

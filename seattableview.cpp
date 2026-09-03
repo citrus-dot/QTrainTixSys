@@ -3,6 +3,8 @@
 #include <QTableWidget>
 #include <QHeaderView>
 #include <QVBoxLayout>
+#include <QStackedLayout>
+#include <QFrame>
 
 SeatTableView::SeatTableView(QWidget *parent)
     : QWidget(parent)
@@ -21,21 +23,28 @@ SeatTableView::SeatTableView(QWidget *parent)
     m_table->horizontalHeader()->setStretchLastSection(true);
     m_table->setEditTriggers(QAbstractItemView::NoEditTriggers);
     m_table->setAlternatingRowColors(true);
-    layout->addWidget(m_table, 1);
 
-    m_emptyHint = new QLabel("请先在左侧选择一个班次\n查看该班次已售座位", this);
+    // 空状态引导：置于表格框内
+    m_emptyFrame = new QFrame(this);
+    m_emptyFrame->setObjectName("emptyFrame");
+    auto *emptyLayout = new QVBoxLayout(m_emptyFrame);
+    m_emptyHint = new QLabel(m_emptyFrame);
     m_emptyHint->setObjectName("emptyHint");
     m_emptyHint->setAlignment(Qt::AlignCenter);
     m_emptyHint->setWordWrap(true);
-    layout->addWidget(m_emptyHint);
+    emptyLayout->addWidget(m_emptyHint);
+
+    m_stack = new QStackedLayout;
+    m_stack->addWidget(m_table);
+    m_stack->addWidget(m_emptyFrame);
+    layout->addLayout(m_stack, 1);
 }
 
 void SeatTableView::setTrain(const Train *train)
 {
     m_table->setRowCount(0);
     if (!train) {
-        m_table->setVisible(false);
-        m_emptyHint->setVisible(true);
+        m_stack->setCurrentWidget(m_emptyFrame);
         m_emptyHint->setText("请先在左侧选择一个班次\n查看该班次已售座位");
         return;
     }
@@ -52,8 +61,7 @@ void SeatTableView::setTrain(const Train *train)
         ++row;
     }
     const bool empty = m_table->rowCount() == 0;
-    m_table->setVisible(!empty);
-    m_emptyHint->setVisible(empty);
+    m_stack->setCurrentWidget(empty ? m_emptyFrame : m_table);
     if (empty)
         m_emptyHint->setText("该班次暂无已售座位\n点击「售票」开始售票");
 }

@@ -13,25 +13,41 @@ QMainWindow, QDialog {
     background: #F4F6FA;
 }
 
+/* 主内容区容器显式浅色背景（覆盖 macOS 深色模式） */
+#mainArea, #pages, #trainPage, #queryPageContainer, #centralwidget {
+    background: #F4F6FA;
+}
+
 /* ---------- 侧边栏 ---------- */
-#sidebar {
+#sidebar, SidebarWidget {
     background: #FFFFFF;
     border-right: 1px solid #E3E7EF;
 }
 #sidebarBrand {
-    font-size: 15px;
-    font-weight: 600;
+    font-size: 17px;
+    font-weight: 700;
     color: #1B2430;
-    padding: 4px 8px 12px 8px;
+}
+#sidebarSubtitle {
+    font-size: 12px;
+    color: #98A1B3;
+    padding-left: 2px;
+}
+#sidebarSection {
+    font-size: 11px;
+    font-weight: 600;
+    color: #A8B0BF;
+    padding: 10px 4px 4px 4px;
+    letter-spacing: 2px;
 }
 QPushButton[nav="true"] {
     text-align: left;
-    padding: 9px 12px;
+    padding: 12px 14px;
     border: none;
-    border-radius: 8px;
+    border-radius: 10px;
     background: transparent;
     color: #4A5568;
-    font-size: 13px;
+    font-size: 14px;
 }
 QPushButton[nav="true"]:hover {
     background: #F0F2F7;
@@ -44,6 +60,25 @@ QPushButton[nav="true"]:checked {
 }
 QPushButton[nav="true"]:pressed {
     background: #DCE8FC;
+}
+#sidebarInfo {
+    background: #F4F6FA;
+    border: 1px solid #E3E7EF;
+    border-radius: 10px;
+}
+#sidebarInfoTitle {
+    font-size: 12px;
+    font-weight: 600;
+    color: #1B2430;
+}
+#sidebarInfoSub {
+    font-size: 11px;
+    color: #98A1B3;
+}
+#sidebarVersion {
+    font-size: 11px;
+    color: #C3CAD8;
+    padding: 2px;
 }
 
 /* ---------- 顶部栏 ---------- */
@@ -64,13 +99,17 @@ QPushButton {
     border-radius: 8px;
     padding: 7px 16px;
     color: #1B2430;
+    qproperty-iconSize: 18px 18px;
 }
 QPushButton:hover {
-    background: #F4F6FA;
-    border-color: #C3CAD8;
+    background: #2F6FED;
+    border-color: #2F6FED;
+    color: #FFFFFF;
 }
 QPushButton:pressed {
-    background: #E9EDF4;
+    background: #2457C4;
+    border-color: #2457C4;
+    color: #FFFFFF;
 }
 QPushButton:disabled {
     color: #A8B0BF;
@@ -82,24 +121,19 @@ QPushButton:focus {
     border-color: #2F6FED;
 }
 
-/* 主操作按钮（售票） */
-QPushButton[primary="true"] {
-    background: #2F6FED;
-    border: none;
-    color: #FFFFFF;
-    font-weight: 500;
-    padding: 8px 20px;
+/* 侧边栏导航按钮图标尺寸保持 20px */
+QPushButton[nav="true"] {
+    qproperty-iconSize: 20px 20px;
 }
-QPushButton[primary="true"]:hover {
-    background: #2457C4;
-}
-QPushButton[primary="true"]:pressed {
-    background: #1E4AA8;
-}
-QPushButton[primary="true"]:disabled {
-    background: #A8C4F2;
-    color: #FFFFFF;
-}
+
+/* 各按钮图标：默认灰色（代码设置），悬停/按下变白（配合蓝色背景） */
+#openButton:hover, #openButton:pressed { qproperty-icon: url(:/icons/file-open-white.svg); }
+#saveButton:hover, #saveButton:pressed { qproperty-icon: url(:/icons/file-save-white.svg); }
+#addButton:hover, #addButton:pressed { qproperty-icon: url(:/icons/action-add-white.svg); }
+#removeButton:hover, #removeButton:pressed { qproperty-icon: url(:/icons/action-delete-white.svg); }
+#sellButton:hover, #sellButton:pressed { qproperty-icon: url(:/icons/action-ticket-white.svg); }
+#refundButton:hover, #refundButton:pressed { qproperty-icon: url(:/icons/action-refund-white.svg); }
+#seatButton:hover, #seatButton:pressed { qproperty-icon: url(:/icons/action-seat-white.svg); }
 
 /* 危险操作按钮（删除） */
 QPushButton[danger="true"] {
@@ -196,13 +230,13 @@ QLineEdit:disabled, QComboBox:disabled, QSpinBox:disabled {
 }
 QComboBox::drop-down {
     border: none;
-    width: 22px;
+    width: 26px;
+    background: transparent;
 }
 QComboBox::down-arrow {
-    image: none;
-    border-left: 4px solid transparent;
-    border-right: 4px solid transparent;
-    border-top: 5px solid #667085;
+    image: url(:/icons/chevron-down.png);
+    width: 14px;
+    height: 14px;
     margin-right: 6px;
 }
 QComboBox QAbstractItemView {
@@ -252,6 +286,20 @@ QListWidget::item:hover {
     border: 1px solid #E3E7EF;
     border-radius: 12px;
 }
+QLabel[field="caption"] {
+    color: #98A1B3;
+    font-size: 12px;
+}
+QLabel[field="value"] {
+    color: #1B2430;
+    font-size: 14px;
+    font-weight: 600;
+}
+#infoSeparator {
+    background: #E3E7EF;
+    border: none;
+    max-height: 1px;
+}
 #infoCard QLabel {
     color: #4A5568;
 }
@@ -265,11 +313,49 @@ QListWidget::item:hover {
 }
 
 /* ---------- 空状态提示 ---------- */
+#emptyFrame {
+    background: #FFFFFF;
+    border: 1px solid #E3E7EF;
+    border-radius: 8px;
+}
 #emptyHint {
     color: #98A1B3;
     font-size: 13px;
     background: transparent;
     border: none;
+}
+
+/* ---------- 座位周边浮窗 ---------- */
+#seatMapPopup {
+    background: #FFFFFF;
+    border: 1px solid #D6DBE6;
+    border-radius: 10px;
+}
+#popupTitle {
+    font-size: 13px;
+    font-weight: 600;
+    color: #1B2430;
+}
+#popupLegend {
+    font-size: 11px;
+    color: #667085;
+}
+#seatCell {
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 500;
+}
+#seatCell[state="empty"] {
+    background: #EAF7EF;
+    color: #1E7B45;
+}
+#seatCell[state="occupied"] {
+    background: #FDECEC;
+    color: #C0392B;
+}
+#seatCell[state="selected"] {
+    background: #2F6FED;
+    color: #FFFFFF;
 }
 
 /* ---------- 菜单 ---------- */

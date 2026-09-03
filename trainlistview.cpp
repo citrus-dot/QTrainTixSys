@@ -4,6 +4,9 @@
 #include <QTableWidget>
 #include <QHeaderView>
 #include <QVBoxLayout>
+#include <QStackedLayout>
+#include <QFrame>
+#include <QIcon>
 
 TrainListView::TrainListView(QWidget *parent)
     : QWidget(parent)
@@ -28,13 +31,29 @@ TrainListView::TrainListView(QWidget *parent)
     m_table->setSelectionBehavior(QAbstractItemView::SelectRows);
     m_table->setEditTriggers(QAbstractItemView::NoEditTriggers);
     m_table->setAlternatingRowColors(true);
-    layout->addWidget(m_table, 1);
 
-    m_emptyHint = new QLabel("暂无班次数据\n点击上方「新增班次」或先「打开」数据文件", this);
+    // 空状态引导：置于表格框内（与表格同尺寸切换）
+    m_emptyFrame = new QFrame(this);
+    m_emptyFrame->setObjectName("emptyFrame");
+    auto *emptyLayout = new QVBoxLayout(m_emptyFrame);
+    emptyLayout->setSpacing(10);
+    m_emptyIcon = new QLabel(m_emptyFrame);
+    m_emptyIcon->setPixmap(QIcon(":/icons/nav-train.svg").pixmap(44, 44));
+    m_emptyIcon->setAlignment(Qt::AlignCenter);
+    m_emptyIcon->setProperty("emptyIcon", true);
+    emptyLayout->addStretch(1);
+    emptyLayout->addWidget(m_emptyIcon);
+    m_emptyHint = new QLabel(m_emptyFrame);
     m_emptyHint->setObjectName("emptyHint");
     m_emptyHint->setAlignment(Qt::AlignCenter);
     m_emptyHint->setWordWrap(true);
-    layout->addWidget(m_emptyHint);
+    emptyLayout->addWidget(m_emptyHint);
+    emptyLayout->addStretch(2);
+
+    m_stack = new QStackedLayout;
+    m_stack->addWidget(m_table);
+    m_stack->addWidget(m_emptyFrame);
+    layout->addLayout(m_stack, 1);
 
     connect(m_searchEdit, &QLineEdit::textChanged, this, &TrainListView::applyFilter);
     connect(m_table, &QTableWidget::itemSelectionChanged, this, &TrainListView::onSelectionChanged);
@@ -95,10 +114,9 @@ void TrainListView::applyFilter()
             }
         }
     }
-    // 空状态引导：无数据时隐藏表格、显示提示
+    // 空状态引导：无数据时在表格框内显示提示
     const bool empty = m_table->rowCount() == 0;
-    m_table->setVisible(!empty);
-    m_emptyHint->setVisible(empty);
+    m_stack->setCurrentWidget(empty ? m_emptyFrame : m_table);
     if (empty)
         m_emptyHint->setText(m_trains.isEmpty()
             ? "暂无班次数据\n点击上方「新增班次」或先「打开」数据文件"

@@ -5,6 +5,9 @@ find_package(Qt6 6.5 REQUIRED COMPONENTS Core Widgets Test)
 
 qt_standard_project_setup()
 
+# 确保 .qrc 资源文件被 AUTORCC 编译进可执行文件
+set(CMAKE_AUTORCC ON)
+
 qt_add_executable(09025208_3
     WIN32 MACOSX_BUNDLE
     main.cpp
@@ -24,6 +27,10 @@ qt_add_executable(09025208_3
     trainlistview.h
     seattableview.cpp
     seattableview.h
+    seattabledialog.cpp
+    seattabledialog.h
+    seatmappopup.cpp
+    seatmappopup.h
     sidebarwidget.cpp
     sidebarwidget.h
     querypage.cpp
