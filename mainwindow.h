@@ -4,6 +4,8 @@
 #include <QMainWindow>
 #include "trainsystem.h"
 
+class QLabel;
+
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
 QT_END_NAMESPACE
@@ -26,15 +28,18 @@ private slots:
     void onRefundTicket();
     void onQuery();
     void onAbout();
+    void onPageSelected(int index);
 
 private:
     void refreshTrainList();
     void refreshSeatTable();
+    void updateStats();
     Train *currentTrain();
 
     Ui::MainWindow *ui;
     TrainSystem m_system;
     QString m_filePath;
+    QLabel *m_statsLabel = nullptr;
 };
 
 #endif // MAINWINDOW_H

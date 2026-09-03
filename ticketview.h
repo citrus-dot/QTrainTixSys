@@ -1,12 +1,12 @@
 #ifndef TICKETVIEW_H
 #define TICKETVIEW_H
 
-#include <QDialog>
+#include "fadedialog.h"
 #include "train.h"
 
 namespace Ui { class TicketView; }
 
-class TicketView : public QDialog
+class TicketView : public FadeDialog
 {
     Q_OBJECT
 

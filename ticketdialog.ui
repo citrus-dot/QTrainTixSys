@@ -6,54 +6,69 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>460</width>
-    <height>440</height>
+    <width>480</width>
+    <height>520</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>售票 / 退票</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
+   <property name="spacing">
+    <number>12</number>
+   </property>
+   <property name="leftMargin">
+    <number>20</number>
+   </property>
+   <property name="topMargin">
+    <number>20</number>
+   </property>
+   <property name="rightMargin">
+    <number>20</number>
+   </property>
+   <property name="bottomMargin">
+    <number>16</number>
+   </property>
    <item>
-    <layout class="QHBoxLayout" name="modeLayout">
-     <item>
-      <widget class="QLabel" name="labelMode">
-       <property name="text">
-        <string>操作类型</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QRadioButton" name="sellRadio">
-       <property name="text">
-        <string>售票</string>
-       </property>
-       <property name="checked">
-        <bool>true</bool>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QRadioButton" name="refundRadio">
-       <property name="text">
-        <string>退票</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <spacer name="horizontalSpacer">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>40</width>
-         <height>20</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
-    </layout>
+    <widget class="QWidget" name="modeContainer" native="true">
+     <layout class="QHBoxLayout" name="modeLayout">
+      <property name="leftMargin">
+       <number>4</number>
+      </property>
+      <property name="topMargin">
+       <number>4</number>
+      </property>
+      <property name="rightMargin">
+       <number>4</number>
+      </property>
+      <property name="bottomMargin">
+       <number>4</number>
+      </property>
+      <item>
+       <widget class="QPushButton" name="sellSeg">
+        <property name="text">
+         <string>售票</string>
+        </property>
+        <property name="checkable">
+         <bool>true</bool>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="refundSeg">
+        <property name="text">
+         <string>退票</string>
+        </property>
+        <property name="checkable">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
    </item>
    <item>
     <layout class="QHBoxLayout" name="passengerLayout">
@@ -65,7 +80,11 @@
       </widget>
      </item>
      <item>
-      <widget class="QLineEdit" name="nameEdit"/>
+      <widget class="QLineEdit" name="nameEdit">
+       <property name="placeholderText">
+        <string>请输入乘车人姓名</string>
+       </property>
+      </widget>
      </item>
      <item>
       <widget class="QLabel" name="labelId">
@@ -75,7 +94,11 @@
       </widget>
      </item>
      <item>
-      <widget class="QLineEdit" name="idEdit"/>
+      <widget class="QLineEdit" name="idEdit">
+       <property name="placeholderText">
+        <string>18 位身份证号</string>
+       </property>
+      </widget>
      </item>
     </layout>
    </item>
@@ -84,7 +107,7 @@
      <item>
       <widget class="QLabel" name="labelCarriage">
        <property name="text">
-        <string>车厢选择</string>
+        <string>车厢</string>
        </property>
       </widget>
      </item>
@@ -114,26 +137,30 @@
      <item>
       <widget class="QLabel" name="legendLabel">
        <property name="text">
-        <string>&lt;font color='#78C878'&gt;■ 空座&lt;/font&gt;   &lt;font color='#DC4646'&gt;■ 已售&lt;/font&gt;</string>
+        <string>&lt;span style='color:#1E7B45'&gt;■ 空座&lt;/span&gt;   &lt;span style='color:#C0392B'&gt;■ 已售&lt;/span&gt;   &lt;span style='color:#2F6FED'&gt;■ 已选&lt;/span&gt;</string>
        </property>
       </widget>
      </item>
     </layout>
    </item>
    <item>
-    <widget class="QTableWidget" name="seatGrid">
-     <property name="minimumSize">
-      <size>
-       <width>0</width>
-       <height>180</height>
-      </size>
+    <widget class="QScrollArea" name="seatScroll">
+     <property name="widgetResizable">
+      <bool>true</bool>
      </property>
-     <property name="editTriggers">
-      <set>QAbstractItemView::NoEditTriggers</set>
+     <property name="frameShape">
+      <enum>QFrame::NoFrame</enum>
      </property>
-     <property name="selectionMode">
-      <enum>QAbstractItemView::NoSelection</enum>
-     </property>
+     <widget class="QWidget" name="seatArea">
+      <layout class="QGridLayout" name="seatGridLayout">
+       <property name="horizontalSpacing">
+        <number>8</number>
+       </property>
+       <property name="verticalSpacing">
+        <number>8</number>
+       </property>
+      </layout>
+     </widget>
     </widget>
    </item>
    <item>

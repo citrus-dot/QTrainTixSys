@@ -5,10 +5,11 @@
 #include <QVector>
 #include "train.h"
 
+class QLabel;
 class QLineEdit;
 class QTableWidget;
 
-// 班次列表组件：搜索框 + 班次表格 + 过滤刷新
+// 班次列表组件：标题 + 搜索框 + 班次表格 + 空状态引导
 class TrainListView : public QWidget
 {
     Q_OBJECT
@@ -20,13 +21,17 @@ public:
     void clearSearch();
 
 signals:
-    void trainSelected(const QString &no); // 选中变化（含过滤后清空）
+    void trainSelected(const QString &no);       // 选中变化（含过滤后清空）
+    void trainDoubleClicked(const QString &no);  // 双击行 → 直接售票
 
 private slots:
     void applyFilter();
     void onSelectionChanged();
+    void onDoubleClicked(int row, int column);
 
 private:
+    QLabel *m_title;
+    QLabel *m_emptyHint;
     QLineEdit *m_searchEdit;
     QTableWidget *m_table;
     QVector<Train> m_trains;

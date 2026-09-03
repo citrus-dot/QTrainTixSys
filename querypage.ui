@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>QueryPage</class>
+ <widget class="QWidget" name="QueryPage">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>520</width>
+    <height>460</height>
+   </rect>
+  </property>
+  <layout class="QVBoxLayout" name="rootLayout">
+   <property name="spacing">
+    <number>12</number>
+   </property>
+   <item>
+    <widget class="QLabel" name="panelTitle">
+     <property name="text">
+      <string>查询班次</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="topLayout">
+     <item>
+      <widget class="QLabel" name="labelTrain">
+       <property name="text">
+        <string>班次选择</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QComboBox" name="comboTrain">
+       <property name="minimumSize">
+        <size>
+         <width>220</width>
+         <height>0</height>
+        </size>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <widget class="QFrame" name="infoCard">
+     <property name="objectName">
+      <string>infoCard</string>
+     </property>
+     <layout class="QVBoxLayout" name="cardLayout">
+      <property name="spacing">
+       <number>8</number>
+      </property>
+      <item>
+       <widget class="QLabel" name="infoLabel">
+        <property name="text">
+         <string>日期: -    发车时间: -    发车城市: -    终点城市: -    余票数: -</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="priceLabel">
+        <property name="text">
+         <string>一等票价: -    二等票价: -</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="listsLayout">
+     <item>
+      <layout class="QVBoxLayout" name="seatLayout">
+       <item>
+        <widget class="QLabel" name="labelSeats">
+         <property name="text">
+          <string>可选座位号</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QListWidget" name="seatList"/>
+       </item>
+      </layout>
+     </item>
+     <item>
+      <layout class="QVBoxLayout" name="stopLayout">
+       <item>
+        <widget class="QLabel" name="labelStops">
+         <property name="text">
+          <string>中间停靠站</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QListWidget" name="stopList"/>
+       </item>
+      </layout>
+     </item>
+    </layout>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

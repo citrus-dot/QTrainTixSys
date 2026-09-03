@@ -1,4 +1,5 @@
 #include "trainlistview.h"
+#include <QLabel>
 #include <QLineEdit>
 #include <QTableWidget>
 #include <QHeaderView>
@@ -9,22 +10,35 @@ TrainListView::TrainListView(QWidget *parent)
 {
     auto *layout = new QVBoxLayout(this);
     layout->setContentsMargins(0, 0, 0, 0);
+    layout->setSpacing(8);
+
+    m_title = new QLabel("班次列表", this);
+    m_title->setObjectName("panelTitle");
+    layout->addWidget(m_title);
 
     m_searchEdit = new QLineEdit(this);
-    m_searchEdit->setPlaceholderText("输入班次号/发车城市/终点城市筛选");
+    m_searchEdit->setPlaceholderText("搜索班次号 / 发车城市 / 终点城市");
     m_searchEdit->setClearButtonEnabled(true);
+    layout->addWidget(m_searchEdit);
 
     m_table = new QTableWidget(this);
     m_table->setColumnCount(8);
     m_table->setHorizontalHeaderLabels({"班次号", "发车日期", "发车时间", "发车城市", "终点城市", "车厢数", "每厢座位数", "余票"});
     m_table->horizontalHeader()->setStretchLastSection(true);
     m_table->setSelectionBehavior(QAbstractItemView::SelectRows);
+    m_table->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    m_table->setAlternatingRowColors(true);
+    layout->addWidget(m_table, 1);
 
-    layout->addWidget(m_searchEdit);
-    layout->addWidget(m_table);
+    m_emptyHint = new QLabel("暂无班次数据\n点击上方「新增班次」或先「打开」数据文件", this);
+    m_emptyHint->setObjectName("emptyHint");
+    m_emptyHint->setAlignment(Qt::AlignCenter);
+    m_emptyHint->setWordWrap(true);
+    layout->addWidget(m_emptyHint);
 
     connect(m_searchEdit, &QLineEdit::textChanged, this, &TrainListView::applyFilter);
     connect(m_table, &QTableWidget::itemSelectionChanged, this, &TrainListView::onSelectionChanged);
+    connect(m_table, &QTableWidget::cellDoubleClicked, this, &TrainListView::onDoubleClicked);
 }
 
 void TrainListView::setTrains(const QVector<Train> &trains)
@@ -81,9 +95,25 @@ void TrainListView::applyFilter()
             }
         }
     }
+    // 空状态引导：无数据时隐藏表格、显示提示
+    const bool empty = m_table->rowCount() == 0;
+    m_table->setVisible(!empty);
+    m_emptyHint->setVisible(empty);
+    if (empty)
+        m_emptyHint->setText(m_trains.isEmpty()
+            ? "暂无班次数据\n点击上方「新增班次」或先「打开」数据文件"
+            : "没有匹配的班次\n请更换搜索关键词");
 }
 
 void TrainListView::onSelectionChanged()
 {
     emit trainSelected(currentTrainNo());
+}
+
+void TrainListView::onDoubleClicked(int row, int column)
+{
+    Q_UNUSED(column);
+    QTableWidgetItem *item = m_table->item(row, 0);
+    if (item)
+        emit trainDoubleClicked(item->data(Qt::UserRole).toString());
 }

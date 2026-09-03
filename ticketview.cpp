@@ -7,7 +7,7 @@
 
 TicketView::TicketView(const Train *train, const QString &name, const QString &id,
                        int carriage, int seatNo, QWidget *parent)
-    : QDialog(parent)
+    : FadeDialog(parent)
     , ui(new Ui::TicketView)
     , m_train(train)
     , m_name(name)
@@ -25,6 +25,7 @@ TicketView::TicketView(const Train *train, const QString &name, const QString &i
     ui->seatLabel->setText(QString("%1号车厢 %2号座").arg(carriage).arg(seatNo));
     ui->classLabel->setText(train->carriageClassText(carriage));
     ui->priceLabel->setText(QString("¥ %1").arg(train->priceOf(carriage), 0, 'f', 2));
+    ui->saveButton->setProperty("primary", true);
     connect(ui->saveButton, &QPushButton::clicked, this, &TicketView::onSaveTicket);
 }
 

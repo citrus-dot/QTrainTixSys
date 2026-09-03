@@ -1,12 +1,12 @@
 #ifndef ADDTRAINDIALOG_H
 #define ADDTRAINDIALOG_H
 
-#include <QDialog>
+#include "fadedialog.h"
 #include "train.h"
 
 namespace Ui { class AddTrainDialog; }
 
-class AddTrainDialog : public QDialog
+class AddTrainDialog : public FadeDialog
 {
     Q_OBJECT
 

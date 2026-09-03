@@ -4,7 +4,7 @@
 #include <QDate>
 
 AddTrainDialog::AddTrainDialog(QWidget *parent)
-    : QDialog(parent)
+    : FadeDialog(parent)
     , ui(new Ui::AddTrainDialog)
 {
     ui->setupUi(this);

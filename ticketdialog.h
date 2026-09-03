@@ -1,12 +1,15 @@
 #ifndef TICKETDIALOG_H
 #define TICKETDIALOG_H
 
-#include <QDialog>
+#include "fadedialog.h"
 #include "train.h"
+#include <QVector>
+
+class QPushButton;
 
 namespace Ui { class TicketDialog; }
 
-class TicketDialog : public QDialog
+class TicketDialog : public FadeDialog
 {
     Q_OBJECT
 
@@ -26,11 +29,11 @@ protected:
 
 private slots:
     void onCarriageChanged();
-    void onSeatClicked(int row, int col);
+    void onSeatClicked(int seatNo);
 
 private:
     void rebuildSeatGrid();
-    void styleSeatItem(int row, int col);
+    void styleSeatButton(QPushButton *btn, int seatNo);
     void clearSelection();
     void updateInfoLabel();
 
@@ -39,8 +42,7 @@ private:
     bool m_sell = true;
     int m_selectedCarriage = 1;
     int m_selectedSeat = 0;
-    int m_selectedRow = -1;
-    int m_selectedCol = -1;
+    QVector<QPushButton *> m_seatButtons;
     static constexpr int SeatsPerRow = 5;
 };
 

@@ -4,9 +4,10 @@
 #include <QWidget>
 #include "train.h"
 
+class QLabel;
 class QTableWidget;
 
-// 座位登记表组件：显示当前选中班次的已售座位
+// 座位登记表组件：标题 + 当前班次已售座位列表 + 空状态引导
 class SeatTableView : public QWidget
 {
     Q_OBJECT
@@ -16,6 +17,8 @@ public:
     void setTrain(const Train *train); // nullptr 清空
 
 private:
+    QLabel *m_title;
+    QLabel *m_emptyHint;
     QTableWidget *m_table;
 };
 

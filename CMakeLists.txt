@@ -20,16 +20,21 @@ qt_add_executable(09025208_3
     ticketview.cpp
     ticketview.h
     ticketview.ui
-    querydialog.cpp
-    querydialog.h
-    querydialog.ui
     trainlistview.cpp
     trainlistview.h
     seattableview.cpp
     seattableview.h
+    sidebarwidget.cpp
+    sidebarwidget.h
+    querypage.cpp
+    querypage.h
+    querypage.ui
+    fadedialog.cpp
+    fadedialog.h
     seat.cpp
     train.cpp
     trainsystem.cpp
+    resources.qrc
 )
 
 target_link_libraries(09025208_3
