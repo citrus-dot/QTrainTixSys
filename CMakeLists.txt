@@ -23,6 +23,8 @@ qt_add_executable(09025208_3
     querydialog.cpp
     querydialog.h
     querydialog.ui
+    trainlistview.cpp
+    trainlistview.h
     seat.cpp
     train.cpp
     trainsystem.cpp
@@ -33,6 +35,8 @@ target_link_libraries(09025208_3
         Qt::Core
         Qt::Widgets
 )
+
+target_include_directories(09025208_3 PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 
 enable_testing()
 

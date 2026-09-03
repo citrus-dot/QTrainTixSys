@@ -26,17 +26,7 @@
        </property>
        <layout class="QVBoxLayout" name="trainLayout">
         <item>
-         <widget class="QLineEdit" name="searchEdit">
-          <property name="placeholderText">
-           <string>输入班次号/发车城市/终点城市筛选</string>
-          </property>
-          <property name="clearButtonEnabled">
-           <bool>true</bool>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QTableWidget" name="trainTable"/>
+         <widget class="TrainListView" name="trainListView"/>
         </item>
        </layout>
       </widget>
@@ -168,4 +158,12 @@
  </widget>
  <resources/>
  <connections/>
+ <customwidgets>
+  <customwidget>
+   <class>TrainListView</class>
+   <extends>QWidget</extends>
+   <header>trainlistview.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
 </ui>
