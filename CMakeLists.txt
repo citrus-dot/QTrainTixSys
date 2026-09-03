@@ -25,6 +25,8 @@ qt_add_executable(09025208_3
     querydialog.ui
     trainlistview.cpp
     trainlistview.h
+    seattableview.cpp
+    seattableview.h
     seat.cpp
     train.cpp
     trainsystem.cpp

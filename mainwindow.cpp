@@ -13,11 +13,6 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
 
-    ui->seatTable->setColumnCount(4);
-    ui->seatTable->setHorizontalHeaderLabels({"车厢号", "座位号", "姓名", "身份证号"});
-    ui->seatTable->horizontalHeader()->setStretchLastSection(true);
-    ui->seatTable->setEditTriggers(QAbstractItemView::NoEditTriggers);
-
     connect(ui->actionNew, &QAction::triggered, this, &MainWindow::onNewFile);
     connect(ui->actionOpen, &QAction::triggered, this, &MainWindow::onOpenFile);
     connect(ui->actionSave, &QAction::triggered, this, &MainWindow::onSaveFile);
@@ -166,22 +161,7 @@ void MainWindow::refreshTrainList()
 
 void MainWindow::refreshSeatTable()
 {
-    ui->seatTable->setRowCount(0);
-    Train *t = currentTrain();
-    if (!t)
-        return;
-    const QVector<Seat> &seats = t->seats();
-    int row = 0;
-    for (const Seat &s : seats) {
-        if (s.isEmpty())
-            continue;
-        ui->seatTable->insertRow(row);
-        ui->seatTable->setItem(row, 0, new QTableWidgetItem(QString::number(s.carriage())));
-        ui->seatTable->setItem(row, 1, new QTableWidgetItem(QString::number(s.seatNo())));
-        ui->seatTable->setItem(row, 2, new QTableWidgetItem(s.name()));
-        ui->seatTable->setItem(row, 3, new QTableWidgetItem(s.id()));
-        ++row;
-    }
+    ui->seatTableView->setTrain(currentTrain());
 }
 
 Train *MainWindow::currentTrain()
