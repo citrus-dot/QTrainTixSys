@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.19)
-project(09025208_3 LANGUAGES CXX)
+project(ticket_system LANGUAGES CXX)
 
 find_package(Qt6 6.5 REQUIRED COMPONENTS Core Widgets Test)
 
@@ -8,7 +8,7 @@ qt_standard_project_setup()
 # 确保 .qrc 资源文件被 AUTORCC 编译进可执行文件
 set(CMAKE_AUTORCC ON)
 
-qt_add_executable(09025208_3
+qt_add_executable(ticket_system
     WIN32 MACOSX_BUNDLE
     main.cpp
     donutchart.cpp
@@ -56,13 +56,19 @@ qt_add_executable(09025208_3
     resources.qrc
 )
 
-target_link_libraries(09025208_3
+set_target_properties(ticket_system PROPERTIES
+    MACOSX_BUNDLE_BUNDLE_NAME "列车售票系统"
+    MACOSX_BUNDLE_BUNDLE_VERSION "0.2.0"
+    MACOSX_BUNDLE_SHORT_VERSION_STRING "0.2.0"
+)
+
+target_link_libraries(ticket_system
     PRIVATE
         Qt::Core
         Qt::Widgets
 )
 
-target_include_directories(09025208_3 PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+target_include_directories(ticket_system PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 
 enable_testing()
 

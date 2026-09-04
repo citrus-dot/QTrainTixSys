@@ -8,6 +8,7 @@
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
+    a.setApplicationName("列车售票系统");
 
     // 强制浅色外观，避免 macOS 深色模式下未覆盖控件显示深色
     QPalette pal = a.palette();
