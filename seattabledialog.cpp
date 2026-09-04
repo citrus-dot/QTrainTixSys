@@ -6,7 +6,7 @@ SeatTableDialog::SeatTableDialog(QWidget *parent)
     : FadeDialog(parent)
 {
     setWindowTitle("座位登记");
-    setMinimumSize(560, 440);
+    setMinimumSize(620, 480);
 
     auto *layout = new QVBoxLayout(this);
     layout->setContentsMargins(20, 20, 20, 16);
@@ -14,9 +14,11 @@ SeatTableDialog::SeatTableDialog(QWidget *parent)
 
     m_view = new SeatTableView(this);
     layout->addWidget(m_view);
+
+    connect(m_view, &SeatTableView::dataChanged, this, &SeatTableDialog::dataChanged);
 }
 
-void SeatTableDialog::setTrain(const Train *train)
+void SeatTableDialog::setTrain(Train *train)
 {
     m_view->setTrain(train);
 }

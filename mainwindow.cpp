@@ -3,12 +3,51 @@
 #include "addtraindialog.h"
 #include "ticketdialog.h"
 #include "ticketview.h"
+#include "selldialog.h"
+#include "refunddialog.h"
 #include "seattabledialog.h"
 #include <QFileDialog>
 #include <QMessageBox>
 #include <QIcon>
 #include <QLabel>
 #include <QStyle>
+#include <QEvent>
+
+namespace {
+// QSS 的 qproperty-icon 在 :hover 下不可靠，改用事件过滤器切换图标
+class HoverIconFilter : public QObject
+{
+public:
+    HoverIconFilter(QPushButton *btn, const QString &normal, const QString &hover, QObject *parent)
+        : QObject(parent), m_btn(btn), m_normal(normal), m_hover(hover)
+    {
+        m_btn->installEventFilter(this);
+    }
+
+protected:
+    bool eventFilter(QObject *obj, QEvent *ev) override
+    {
+        if (obj == m_btn) {
+            if (ev->type() == QEvent::Enter)
+                m_btn->setIcon(QIcon(m_hover));
+            else if (ev->type() == QEvent::Leave)
+                m_btn->setIcon(QIcon(m_normal));
+        }
+        return QObject::eventFilter(obj, ev);
+    }
+
+private:
+    QPushButton *m_btn;
+    QString m_normal;
+    QString m_hover;
+};
+
+void setupHoverIcon(QPushButton *btn, const QString &normal, const QString &hover, QObject *parent)
+{
+    btn->setIcon(QIcon(normal));
+    new HoverIconFilter(btn, normal, hover, parent);
+}
+} // namespace
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -38,21 +77,21 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->sidebar, &SidebarWidget::pageSelected, this, &MainWindow::onPageSelected);
     connect(ui->sidebar, &SidebarWidget::aboutClicked, this, &MainWindow::onAbout);
 
-    // 班次列表：选中变化联动按钮状态，双击直接售票
+    // 班次列表：选中变化联动按钮状态，双击打开班次详情
     connect(ui->trainListView, &TrainListView::trainSelected, this, &MainWindow::onTrainSelectionChanged);
-    connect(ui->trainListView, &TrainListView::trainDoubleClicked, this, &MainWindow::onSellTicket);
+    connect(ui->trainListView, &TrainListView::trainDoubleClicked, this, &MainWindow::onTrainDoubleClicked);
 
     // 查询页绑定数据源
     ui->queryPageWidget->setSystem(&m_system);
 
-    // 按钮图标（悬停变白由 QSS 处理）
-    ui->openButton->setIcon(QIcon(":/icons/file-open.svg"));
-    ui->saveButton->setIcon(QIcon(":/icons/file-save.svg"));
-    ui->addButton->setIcon(QIcon(":/icons/action-add.svg"));
-    ui->removeButton->setIcon(QIcon(":/icons/action-delete.svg"));
-    ui->sellButton->setIcon(QIcon(":/icons/action-ticket.svg"));
-    ui->refundButton->setIcon(QIcon(":/icons/action-refund.svg"));
-    ui->seatButton->setIcon(QIcon(":/icons/action-seat.svg"));
+    // 按钮图标：默认灰色，悬停变白（由事件过滤器切换）
+    setupHoverIcon(ui->openButton, ":/icons/file-open.svg", ":/icons/file-open-white.svg", this);
+    setupHoverIcon(ui->saveButton, ":/icons/file-save.svg", ":/icons/file-save-white.svg", this);
+    setupHoverIcon(ui->addButton, ":/icons/action-add.svg", ":/icons/action-add-white.svg", this);
+    setupHoverIcon(ui->removeButton, ":/icons/action-delete.svg", ":/icons/action-delete-white.svg", this);
+    setupHoverIcon(ui->sellButton, ":/icons/action-ticket.svg", ":/icons/action-ticket-white.svg", this);
+    setupHoverIcon(ui->refundButton, ":/icons/action-refund.svg", ":/icons/action-refund-white.svg", this);
+    setupHoverIcon(ui->seatButton, ":/icons/action-seat.svg", ":/icons/action-seat-white.svg", this);
 
     // 状态栏常驻统计
     m_statsLabel = new QLabel(this);
@@ -153,18 +192,10 @@ void MainWindow::onSellTicket()
         QMessageBox::information(this, "提示", "请先在左侧选择一个班次");
         return;
     }
-    TicketDialog dlg(t, this);
-    dlg.setSellMode(true);
-    if (dlg.exec() != QDialog::Accepted)
-        return;
-    if (t->sellTicket(dlg.name(), dlg.id(), dlg.carriage(), dlg.seatNo())) {
-        refreshTrainList();
-        ui->statusbar->showMessage("售票成功", 3000);
-        TicketView view(t, dlg.name(), dlg.id(), dlg.carriage(), dlg.seatNo(), this);
-        view.exec();
-    } else {
-        QMessageBox::warning(this, "提示", "售票失败");
-    }
+    SellDialog dlg(this);
+    dlg.setTrain(t);
+    connect(&dlg, &SellDialog::dataChanged, this, &MainWindow::refreshTrainList);
+    dlg.exec();
 }
 
 void MainWindow::onRefundTicket()
@@ -174,14 +205,20 @@ void MainWindow::onRefundTicket()
         QMessageBox::information(this, "提示", "请先在左侧选择一个班次");
         return;
     }
-    TicketDialog dlg(t, this);
-    dlg.setSellMode(false);
-    if (dlg.exec() != QDialog::Accepted)
+    RefundDialog dlg(this);
+    dlg.setTrain(t);
+    connect(&dlg, &RefundDialog::dataChanged, this, &MainWindow::refreshTrainList);
+    dlg.exec();
+}
+
+void MainWindow::onTrainDoubleClicked()
+{
+    Train *t = currentTrain();
+    if (!t)
         return;
-    if (t->refundTicket(dlg.carriage(), dlg.seatNo())) {
-        refreshTrainList();
-        ui->statusbar->showMessage("退票成功", 3000);
-    }
+    TicketDialog dlg(t, this);
+    connect(&dlg, &TicketDialog::dataChanged, this, &MainWindow::refreshTrainList);
+    dlg.exec();
 }
 
 void MainWindow::onQuery()
@@ -193,6 +230,7 @@ void MainWindow::onAbout()
 {
     QMessageBox::about(this, "关于",
                        "<h3>列车客运售票管理系统</h3>"
+                       "<p>版本 v0.1.16</p>"
                        "<p>课程设计作业 · Qt Widgets</p>"
                        "<p>支持班次管理、售票退票、余票查询、车票导出</p>");
 }
@@ -206,6 +244,7 @@ void MainWindow::onSeatTable()
     }
     SeatTableDialog dlg(this);
     dlg.setTrain(t);
+    connect(&dlg, &SeatTableDialog::dataChanged, this, &MainWindow::refreshTrainList);
     dlg.exec();
 }
 

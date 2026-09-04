@@ -9,6 +9,7 @@ class QPushButton;
 
 namespace Ui { class TicketDialog; }
 
+// 班次详情弹窗：座位网格总览，选中座位后在下方给出可进行的操作
 class TicketDialog : public FadeDialog
 {
     Q_OBJECT
@@ -17,15 +18,8 @@ public:
     explicit TicketDialog(Train *train, QWidget *parent = nullptr);
     ~TicketDialog() override;
 
-    void setSellMode(bool sell);
-    bool isSell() const;
-    QString name() const;
-    QString id() const;
-    int carriage() const;
-    int seatNo() const;
-
-protected:
-    void accept() override;
+signals:
+    void dataChanged(); // 售票/退票后数据变化
 
 private slots:
     void onCarriageChanged();
@@ -36,10 +30,11 @@ private:
     void styleSeatButton(QPushButton *btn, int seatNo);
     void clearSelection();
     void updateInfoLabel();
+    void updateActionButton();
+    void onAction();
 
     Ui::TicketDialog *ui;
     Train *m_train;
-    bool m_sell = true;
     int m_selectedCarriage = 1;
     int m_selectedSeat = 0;
     QVector<QPushButton *> m_seatButtons;

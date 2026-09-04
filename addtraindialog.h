@@ -3,6 +3,9 @@
 
 #include "fadedialog.h"
 #include "train.h"
+#include <QDate>
+
+class QDialog;
 
 namespace Ui { class AddTrainDialog; }
 
@@ -18,9 +21,20 @@ public:
 
 protected:
     void accept() override;
+    bool eventFilter(QObject *obj, QEvent *event) override;
+
+private slots:
+    void toggleCalendar();
 
 private:
+    void openCalendar();
+    void closeCalendar();
+    void updateCalendarIcon();
+
     Ui::AddTrainDialog *ui;
+    QDate m_selectedDate;
+    QDialog *m_calendarPopup = nullptr;
+    bool m_calendarVisible = false;
 };
 
 #endif // ADDTRAINDIALOG_H

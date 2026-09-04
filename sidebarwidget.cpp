@@ -85,9 +85,8 @@ SidebarWidget::SidebarWidget(QWidget *parent)
     layout->addWidget(aboutBtn);
     connect(aboutBtn, &QPushButton::clicked, this, &SidebarWidget::aboutClicked);
 
-    auto *version = new QLabel("版本 V16", this);
+    auto *version = new QLabel("版本号 v0.1.16", this);
     version->setObjectName("sidebarVersion");
-    version->setAlignment(Qt::AlignCenter);
     layout->addWidget(version);
 
     connect(m_group, &QButtonGroup::idClicked, this, &SidebarWidget::pageSelected);

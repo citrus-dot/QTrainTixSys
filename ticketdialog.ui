@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>售票 / 退票</string>
+   <string>班次详情</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <property name="spacing">
@@ -30,77 +30,14 @@
     <number>16</number>
    </property>
    <item>
-    <widget class="QWidget" name="modeContainer" native="true">
-     <layout class="QHBoxLayout" name="modeLayout">
-      <property name="leftMargin">
-       <number>4</number>
-      </property>
-      <property name="topMargin">
-       <number>4</number>
-      </property>
-      <property name="rightMargin">
-       <number>4</number>
-      </property>
-      <property name="bottomMargin">
-       <number>4</number>
-      </property>
-      <item>
-       <widget class="QPushButton" name="sellSeg">
-        <property name="text">
-         <string>售票</string>
-        </property>
-        <property name="checkable">
-         <bool>true</bool>
-        </property>
-        <property name="checked">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QPushButton" name="refundSeg">
-        <property name="text">
-         <string>退票</string>
-        </property>
-        <property name="checkable">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-     </layout>
+    <widget class="QLabel" name="titleLabel">
+     <property name="objectName">
+      <string>panelTitle</string>
+     </property>
+     <property name="text">
+      <string>班次详情</string>
+     </property>
     </widget>
-   </item>
-   <item>
-    <layout class="QHBoxLayout" name="passengerLayout">
-     <item>
-      <widget class="QLabel" name="labelName">
-       <property name="text">
-        <string>姓名</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QLineEdit" name="nameEdit">
-       <property name="placeholderText">
-        <string>请输入乘车人姓名</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QLabel" name="labelId">
-       <property name="text">
-        <string>身份证号</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QLineEdit" name="idEdit">
-       <property name="placeholderText">
-        <string>18 位身份证号</string>
-       </property>
-      </widget>
-     </item>
-    </layout>
    </item>
    <item>
     <layout class="QHBoxLayout" name="carriageLayout">
@@ -171,27 +108,45 @@
     </widget>
    </item>
    <item>
-    <widget class="QDialogButtonBox" name="buttonBox">
-     <property name="standardButtons">
-      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
-     </property>
-    </widget>
+    <layout class="QHBoxLayout" name="actionRow">
+     <item>
+      <widget class="QPushButton" name="actionButton">
+       <property name="text">
+        <string>售票</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="actionSpacer">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QPushButton" name="closeButton">
+       <property name="text">
+        <string>关闭</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
    </item>
   </layout>
  </widget>
  <resources/>
  <connections>
   <connection>
-   <sender>buttonBox</sender>
-   <signal>accepted()</signal>
+   <sender>closeButton</sender>
+   <signal>clicked()</signal>
    <receiver>TicketDialog</receiver>
-   <slot>accept()</slot>
-  </connection>
-  <connection>
-   <sender>buttonBox</sender>
-   <signal>rejected()</signal>
-   <receiver>TicketDialog</receiver>
-   <slot>reject()</slot>
+   <slot>close()</slot>
   </connection>
  </connections>
 </ui>

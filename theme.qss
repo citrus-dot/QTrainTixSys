@@ -126,14 +126,7 @@ QPushButton[nav="true"] {
     qproperty-iconSize: 20px 20px;
 }
 
-/* 各按钮图标：默认灰色（代码设置），悬停/按下变白（配合蓝色背景） */
-#openButton:hover, #openButton:pressed { qproperty-icon: url(:/icons/file-open-white.svg); }
-#saveButton:hover, #saveButton:pressed { qproperty-icon: url(:/icons/file-save-white.svg); }
-#addButton:hover, #addButton:pressed { qproperty-icon: url(:/icons/action-add-white.svg); }
-#removeButton:hover, #removeButton:pressed { qproperty-icon: url(:/icons/action-delete-white.svg); }
-#sellButton:hover, #sellButton:pressed { qproperty-icon: url(:/icons/action-ticket-white.svg); }
-#refundButton:hover, #refundButton:pressed { qproperty-icon: url(:/icons/action-refund-white.svg); }
-#seatButton:hover, #seatButton:pressed { qproperty-icon: url(:/icons/action-seat-white.svg); }
+/* 各按钮图标：默认灰色，悬停/按下变白（由 mainwindow.cpp 事件过滤器切换） */
 
 /* 危险操作按钮（删除） */
 QPushButton[danger="true"] {
@@ -208,6 +201,31 @@ QPushButton[seat="true"][state="selected"]:hover {
 QPushButton[seat="true"][state="selected"]:pressed {
     background: #1E4AA8;
 }
+/* 座等级边框：一等座浅黄色，二等座灰色 */
+QPushButton[seat="true"][class="first"] {
+    border: 2px solid #F5E7A0;
+}
+QPushButton[seat="true"][class="first"][state="empty"] {
+    background: #EAF7EF;
+}
+QPushButton[seat="true"][class="first"][state="occupied"] {
+    background: #FDECEC;
+}
+QPushButton[seat="true"][class="first"][state="selected"] {
+    background: #2F6FED;
+}
+QPushButton[seat="true"][class="second"] {
+    border: 2px solid #CBD5E1;
+}
+QPushButton[seat="true"][class="second"][state="empty"] {
+    background: #EAF7EF;
+}
+QPushButton[seat="true"][class="second"][state="occupied"] {
+    background: #FDECEC;
+}
+QPushButton[seat="true"][class="second"][state="selected"] {
+    background: #2F6FED;
+}
 
 /* ---------- 输入框 ---------- */
 QLineEdit, QComboBox, QSpinBox, QDoubleSpinBox, QDateEdit {
@@ -247,6 +265,83 @@ QComboBox QAbstractItemView {
     selection-background-color: #EAF1FE;
     selection-color: #1B2430;
     outline: none;
+}
+
+/* 数字输入框上下箭头（与下拉箭头同风格） */
+QSpinBox::up-button, QDoubleSpinBox::up-button,
+QSpinBox::down-button, QDoubleSpinBox::down-button {
+    border: none;
+    background: transparent;
+    width: 22px;
+}
+QSpinBox::up-arrow, QDoubleSpinBox::up-arrow {
+    image: url(:/icons/chevron-up.png);
+    width: 12px;
+    height: 12px;
+}
+QSpinBox::down-arrow, QDoubleSpinBox::down-arrow {
+    image: url(:/icons/chevron-down.png);
+    width: 12px;
+    height: 12px;
+}
+
+/* 日期选择字段：输入框 + 箭头按钮合并为一个整体 */
+#dateField {
+    background: #FFFFFF;
+    border: 1px solid #D6DBE6;
+    border-radius: 8px;
+}
+#dateField QLineEdit {
+    border: none;
+    background: transparent;
+    padding: 6px 10px;
+    selection-background-color: #2F6FED;
+    selection-color: #FFFFFF;
+}
+#dateField QToolButton {
+    border: none;
+    background: transparent;
+    border-radius: 0 8px 8px 0;
+    padding: 0;
+    width: 26px;
+}
+#dateField QToolButton:hover {
+    background: #F0F2F7;
+}
+#dateField QToolButton:pressed {
+    background: #E3E7EF;
+}
+
+/* 日历弹窗 */
+QCalendarWidget {
+    background: #FFFFFF;
+}
+QCalendarWidget QWidget#qt_calendar_navigationbar {
+    background: #F4F6FA;
+    border: none;
+}
+QCalendarWidget QToolButton {
+    background: transparent;
+    border: none;
+    border-radius: 6px;
+    padding: 4px 8px;
+    color: #1B2430;
+}
+QCalendarWidget QToolButton:hover {
+    background: #EAF1FE;
+    color: #2F6FED;
+}
+QCalendarWidget QAbstractItemView {
+    background: #FFFFFF;
+    selection-background-color: #2F6FED;
+    selection-color: #FFFFFF;
+    outline: none;
+}
+QCalendarWidget QSpinBox {
+    background: #FFFFFF;
+    border: 1px solid #D6DBE6;
+    border-radius: 6px;
+    padding: 2px 6px;
 }
 
 /* ---------- 表格 ---------- */
@@ -299,9 +394,6 @@ QLabel[field="value"] {
     background: #E3E7EF;
     border: none;
     max-height: 1px;
-}
-#infoCard QLabel {
-    color: #4A5568;
 }
 
 /* ---------- 分组标题 ---------- */

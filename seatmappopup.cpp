@@ -5,27 +5,31 @@
 #include <QGuiApplication>
 #include <QScreen>
 #include <QStyle>
+#include <QPropertyAnimation>
+#include <QFrame>
 
 SeatMapPopup::SeatMapPopup(const Train &train, int carriage, int selectedSeat, QWidget *parent)
-    : QWidget(parent, Qt::Popup | Qt::FramelessWindowHint)
+    : QWidget(parent, Qt::Popup | Qt::FramelessWindowHint | Qt::NoDropShadowWindowHint)
     , m_train(train)
     , m_carriage(carriage)
     , m_selectedSeat(selectedSeat)
 {
-    setObjectName("seatMapPopup");
-    setAttribute(Qt::WA_StyledBackground, true);
-    buildGrid();
-}
+    setAttribute(Qt::WA_TranslucentBackground, true);
+    // 外层透明窗口：无黑色边框
 
-void SeatMapPopup::buildGrid()
-{
-    auto *layout = new QVBoxLayout(this);
+    // 内容容器：实心白色背景 + 边框，为文字提供不透背景
+    auto *content = new QFrame(this);
+    content->setObjectName("seatMapPopup");
+    content->setAutoFillBackground(true);
+    content->setAttribute(Qt::WA_StyledBackground, true);
+
+    auto *layout = new QVBoxLayout(content);
     layout->setContentsMargins(14, 12, 14, 12);
     layout->setSpacing(8);
 
     auto *title = new QLabel(QString("%1号车厢 · %2 · 座位分布")
                                  .arg(m_carriage)
-                                 .arg(m_train.carriageClassText(m_carriage)), this);
+                                 .arg(m_train.carriageClassText(m_carriage)), content);
     title->setObjectName("popupTitle");
     layout->addWidget(title);
 
@@ -35,13 +39,16 @@ void SeatMapPopup::buildGrid()
     const int cols = 5;
     for (int i = 0; i < seatsPer; ++i) {
         const int seatNo = i + 1;
-        auto *cell = new QLabel(QString::number(seatNo), this);
+        auto *cell = new QLabel(QString::number(seatNo), content);
         cell->setObjectName("seatCell");
         cell->setAlignment(Qt::AlignCenter);
         cell->setFixedSize(34, 26);
-        const bool selected = (seatNo == m_selectedSeat);
         const bool occupied = m_train.isSeatOccupied(m_carriage, seatNo);
-        cell->setProperty("state", selected ? "selected" : (occupied ? "occupied" : "empty"));
+        const bool selected = (seatNo == m_selectedSeat);
+        if (selected)
+            cell->setProperty("state", "selected");
+        else
+            cell->setProperty("state", occupied ? "occupied" : "empty");
         cell->style()->unpolish(cell);
         cell->style()->polish(cell);
         grid->addWidget(cell, i / cols, i % cols);
@@ -51,9 +58,15 @@ void SeatMapPopup::buildGrid()
     auto *legend = new QLabel(
         "<span style='color:#1E7B45'>■ 空座</span>"
         "&nbsp;&nbsp;<span style='color:#C0392B'>■ 已售</span>"
-        "&nbsp;&nbsp;<span style='color:#2F6FED'>■ 选中</span>", this);
+        "&nbsp;&nbsp;<span style='color:#2F6FED'>■ 选中</span>", content);
     legend->setObjectName("popupLegend");
     layout->addWidget(legend);
+
+    // 将内容容器作为唯一子控件，填充整个弹出窗口
+    auto *outerLayout = new QVBoxLayout(this);
+    outerLayout->setContentsMargins(0, 0, 0, 0);
+    outerLayout->addWidget(content);
+    setLayout(outerLayout);
 }
 
 void SeatMapPopup::showNear(const QPoint &globalPos)
@@ -70,5 +83,18 @@ void SeatMapPopup::showNear(const QPoint &globalPos)
     if (y + height() > avail.bottom())
         y = globalPos.y() - height() - 12;
     move(qMax(x, avail.left() + 4), qMax(y, avail.top() + 4));
+
+    // 淡入动画
+    setWindowOpacity(0.0);
     show();
+    if (m_fadeIn) {
+        m_fadeIn->stop();
+        delete m_fadeIn;
+    }
+    m_fadeIn = new QPropertyAnimation(this, "windowOpacity", this);
+    m_fadeIn->setDuration(150);
+    m_fadeIn->setStartValue(0.0);
+    m_fadeIn->setEndValue(1.0);
+    m_fadeIn->start(QAbstractAnimation::DeleteWhenStopped);
+    m_fadeIn = nullptr;
 }

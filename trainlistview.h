@@ -31,7 +31,13 @@ private slots:
     void onSelectionChanged();
     void onDoubleClicked(int row, int column);
 
+protected:
+    void showEvent(QShowEvent *event) override;
+    void resizeEvent(QResizeEvent *event) override;
+
 private:
+    void applyColumnWidths();
+
     QLabel *m_title;
     QLineEdit *m_searchEdit;
     QTableWidget *m_table;
@@ -40,6 +46,8 @@ private:
     QLabel *m_emptyHint;
     QStackedLayout *m_stack;
     QVector<Train> m_trains;
+    QVector<int> m_weights; // 各列内容权重（数据刷新时计算）
+    int m_totalWeight = 0;
 };
 
 #endif // TRAINLISTVIEW_H

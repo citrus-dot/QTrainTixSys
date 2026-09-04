@@ -29,6 +29,14 @@ qt_add_executable(09025208_3
     seattableview.h
     seattabledialog.cpp
     seattabledialog.h
+    registerdialog.cpp
+    registerdialog.h
+    seatstatustable.cpp
+    seatstatustable.h
+    selldialog.cpp
+    selldialog.h
+    refunddialog.cpp
+    refunddialog.h
     seatmappopup.cpp
     seatmappopup.h
     sidebarwidget.cpp

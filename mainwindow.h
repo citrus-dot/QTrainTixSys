@@ -26,6 +26,7 @@ private slots:
     void onRemoveTrain();
     void onSellTicket();
     void onRefundTicket();
+    void onTrainDoubleClicked();
     void onSeatTable();
     void onQuery();
     void onAbout();
