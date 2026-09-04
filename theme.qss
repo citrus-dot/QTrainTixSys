@@ -1,6 +1,6 @@
 /* ============================================================
-   列车客运售票管理系统 — 全局主题（浅色现代扁平）
-   品牌蓝 #2F6FED / 中性灰 / 圆角卡片
+   列车客运售票管理系统 v0.2.0 — 卡片式仪表盘主题
+   品牌蓝 #2F6FED / 浅色背景 / 圆角卡片
    ============================================================ */
 
 QWidget {
@@ -13,41 +13,79 @@ QMainWindow, QDialog {
     background: #F4F6FA;
 }
 
-/* 主内容区容器显式浅色背景（覆盖 macOS 深色模式） */
-#mainArea, #pages, #trainPage, #queryPageContainer, #centralwidget {
+/* 主内容区背景 */
+#mainArea, #contentStack, #centralwidget {
     background: #F4F6FA;
 }
 
-/* ---------- 侧边栏 ---------- */
+/* ========== 自定义标题栏 ========== */
+#customTitleBar {
+    background: #FFFFFF;
+    border-bottom: 1px solid #E3E7EF;
+}
+#titleBarBrand {
+    font-size: 14px;
+    font-weight: 600;
+    color: #1B2430;
+    margin-left: 4px;
+}
+#titleMinBtn {
+    background: #F0C040;
+    border: 1px solid #D4A830;
+    border-radius: 7px;
+}
+#titleMinBtn:hover {
+    background: #F5D060;
+}
+#titleMaxBtn {
+    background: #4CAF50;
+    border: 1px solid #3E8F41;
+    border-radius: 7px;
+}
+#titleMaxBtn:hover {
+    background: #66BB6A;
+}
+#titleCloseBtn {
+    background: #E5484D;
+    border: 1px solid #C5393E;
+    border-radius: 7px;
+}
+#titleCloseBtn:hover {
+    background: #EF5A5F;
+}
+
+/* ========== 侧边栏 ========== */
 #sidebar, SidebarWidget {
     background: #FFFFFF;
     border-right: 1px solid #E3E7EF;
 }
 #sidebarBrand {
-    font-size: 17px;
+    font-size: 16px;
     font-weight: 700;
     color: #1B2430;
+    margin-top: 2px;
 }
 #sidebarSubtitle {
-    font-size: 12px;
+    font-size: 11px;
     color: #98A1B3;
-    padding-left: 2px;
+    margin-top: -2px;
 }
 #sidebarSection {
     font-size: 11px;
     font-weight: 600;
     color: #A8B0BF;
-    padding: 10px 4px 4px 4px;
+    padding: 6px 2px 4px 2px;
     letter-spacing: 2px;
 }
 QPushButton[nav="true"] {
     text-align: left;
-    padding: 12px 14px;
+    padding: 0 16px;
     border: none;
     border-radius: 10px;
     background: transparent;
     color: #4A5568;
-    font-size: 14px;
+    font-size: 15px;
+    qproperty-iconSize: 26px 26px;
 }
 QPushButton[nav="true"]:hover {
     background: #F0F2F7;
@@ -81,18 +119,62 @@ QPushButton[nav="true"]:pressed {
     padding: 2px;
 }
 
-/* ---------- 顶部栏 ---------- */
-#topBar {
+/* ========== 卡片容器 ========== */
+#cardPanel {
     background: #FFFFFF;
-    border-bottom: 1px solid #E3E7EF;
+    border: 1px solid #E3E7EF;
+    border-radius: 12px;
 }
-#pageTitle {
-    font-size: 18px;
+#cardTitle, #pageTitle {
+    font-size: 16px;
     font-weight: 600;
     color: #1B2430;
+    padding: 0 0 4px 0;
 }
 
-/* ---------- 按钮 ---------- */
+/* ========== 操作按钮组（卡片式分组） ========== */
+#actionGroup {
+    background: #F4F6FA;
+    border-radius: 10px;
+    padding: 6px;
+}
+#actionGroup QPushButton {
+    background: #FFFFFF;
+    border: 1px solid #D6DBE6;
+    border-radius: 8px;
+    padding: 7px 16px;
+    color: #1B2430;
+}
+#actionGroup QPushButton:hover {
+    background: #2F6FED;
+    border-color: #2F6FED;
+    color: #FFFFFF;
+}
+#actionGroup QPushButton:pressed {
+    background: #2457C4;
+    border-color: #2457C4;
+    color: #FFFFFF;
+}
+#actionGroup QPushButton:disabled {
+    color: #A8B0BF;
+    background: #F4F6FA;
+    border-color: #E3E7EF;
+}
+#actionGroup QPushButton[danger="true"] {
+    background: #E5484D;
+    border: none;
+    color: #FFFFFF;
+    font-weight: 500;
+    padding: 8px 20px;
+}
+#actionGroup QPushButton[danger="true"]:hover {
+    background: #D13B40;
+}
+#actionGroup QPushButton[danger="true"]:pressed {
+    background: #B93236;
+}
+
+/* ========== 通用按钮 ========== */
 QPushButton {
     background: #FFFFFF;
     border: 1px solid #D6DBE6;
@@ -121,14 +203,7 @@ QPushButton:focus {
     border-color: #2F6FED;
 }
 
-/* 侧边栏导航按钮图标尺寸保持 20px */
-QPushButton[nav="true"] {
-    qproperty-iconSize: 20px 20px;
-}
-
-/* 各按钮图标：默认灰色，悬停/按下变白（由 mainwindow.cpp 事件过滤器切换） */
-
-/* 危险操作按钮（删除） */
+/* 危险按钮 */
 QPushButton[danger="true"] {
     background: #E5484D;
     border: none;
@@ -143,28 +218,7 @@ QPushButton[danger="true"]:pressed {
     background: #B93236;
 }
 
-/* 分段切换控件（售票/退票） */
-#modeContainer {
-    background: #EDF0F5;
-    border-radius: 8px;
-}
-QPushButton[seg="true"] {
-    background: transparent;
-    border: none;
-    border-radius: 6px;
-    padding: 6px 22px;
-    color: #667085;
-}
-QPushButton[seg="true"]:hover {
-    color: #1B2430;
-}
-QPushButton[seg="true"]:checked {
-    background: #FFFFFF;
-    color: #2F6FED;
-    font-weight: 600;
-}
-
-/* 座位按钮 */
+/* ========== 座位按钮 ========== */
 QPushButton[seat="true"] {
     border: none;
     border-radius: 8px;
@@ -201,7 +255,6 @@ QPushButton[seat="true"][state="selected"]:hover {
 QPushButton[seat="true"][state="selected"]:pressed {
     background: #1E4AA8;
 }
-/* 座等级边框：一等座浅黄色，二等座灰色 */
 QPushButton[seat="true"][class="first"] {
     border: 2px solid #F5E7A0;
 }
@@ -227,7 +280,7 @@ QPushButton[seat="true"][class="second"][state="selected"] {
     background: #2F6FED;
 }
 
-/* ---------- 输入框 ---------- */
+/* ========== 输入框 ========== */
 QLineEdit, QComboBox, QSpinBox, QDoubleSpinBox, QDateEdit {
     background: #FFFFFF;
     border: 1px solid #D6DBE6;
@@ -266,8 +319,6 @@ QComboBox QAbstractItemView {
     selection-color: #1B2430;
     outline: none;
 }
-
-/* 数字输入框上下箭头（与下拉箭头同风格） */
 QSpinBox::up-button, QDoubleSpinBox::up-button,
 QSpinBox::down-button, QDoubleSpinBox::down-button {
     border: none;
@@ -284,8 +335,6 @@ QSpinBox::down-arrow, QDoubleSpinBox::down-arrow {
     width: 12px;
     height: 12px;
 }
-
-/* 日期选择字段：输入框 + 箭头按钮合并为一个整体 */
 #dateField {
     background: #FFFFFF;
     border: 1px solid #D6DBE6;
@@ -311,8 +360,6 @@ QSpinBox::down-arrow, QDoubleSpinBox::down-arrow {
 #dateField QToolButton:pressed {
     background: #E3E7EF;
 }
-
-/* 日历弹窗 */
 QCalendarWidget {
     background: #FFFFFF;
 }
@@ -344,7 +391,7 @@ QCalendarWidget QSpinBox {
     padding: 2px 6px;
 }
 
-/* ---------- 表格 ---------- */
+/* ========== 表格 ========== */
 QTableWidget, QListWidget {
     background: #FFFFFF;
     border: 1px solid #E3E7EF;
@@ -375,7 +422,7 @@ QListWidget::item:hover {
     background: #F4F6FA;
 }
 
-/* ---------- 卡片 ---------- */
+/* ========== 信息卡片 ========== */
 #infoCard {
     background: #FFFFFF;
     border: 1px solid #E3E7EF;
@@ -396,7 +443,32 @@ QLabel[field="value"] {
     max-height: 1px;
 }
 
-/* ---------- 分组标题 ---------- */
+/* ========== 统计卡片 ========== */
+#statCard {
+    background: #FFFFFF;
+    border: 1px solid #E3E7EF;
+    border-radius: 12px;
+}
+#statValue {
+    font-size: 28px;
+    font-weight: 700;
+    color: #2F6FED;
+}
+#statLabel {
+    font-size: 12px;
+    color: #98A1B3;
+}
+#statCard[accent="green"] #statValue {
+    color: #1E7B45;
+}
+#statCard[accent="red"] #statValue {
+    color: #C0392B;
+}
+#statCard[accent="blue"] #statValue {
+    color: #2F6FED;
+}
+
+/* ========== 分组标题 ========== */
 #panelTitle {
     font-size: 14px;
     font-weight: 600;
@@ -404,7 +476,7 @@ QLabel[field="value"] {
     padding: 2px 2px 6px 2px;
 }
 
-/* ---------- 空状态提示 ---------- */
+/* ========== 空状态提示 ========== */
 #emptyFrame {
     background: #FFFFFF;
     border: 1px solid #E3E7EF;
@@ -417,7 +489,7 @@ QLabel[field="value"] {
     border: none;
 }
 
-/* ---------- 座位周边浮窗 ---------- */
+/* ========== 座位浮窗 ========== */
 #seatMapPopup {
     background: #FFFFFF;
     border: 1px solid #D6DBE6;
@@ -450,21 +522,7 @@ QLabel[field="value"] {
     color: #FFFFFF;
 }
 
-/* ---------- 菜单 ---------- */
-QMenuBar {
-    background: #FFFFFF;
-    border-bottom: 1px solid #E3E7EF;
-    padding: 2px 6px;
-}
-QMenuBar::item {
-    padding: 5px 12px;
-    border-radius: 6px;
-    background: transparent;
-}
-QMenuBar::item:selected {
-    background: #EAF1FE;
-    color: #1B2430;
-}
+/* ========== 菜单（保留系统菜单，部分场景仍需） ========== */
 QMenu {
     background: #FFFFFF;
     border: 1px solid #E3E7EF;
@@ -485,7 +543,7 @@ QMenu::separator {
     margin: 4px 8px;
 }
 
-/* ---------- 状态栏 ---------- */
+/* ========== 状态栏 ========== */
 QStatusBar {
     background: #FFFFFF;
     border-top: 1px solid #E3E7EF;
@@ -495,7 +553,7 @@ QStatusBar::item {
     border: none;
 }
 
-/* ---------- 滚动条 ---------- */
+/* ========== 滚动条 ========== */
 QScrollBar:vertical {
     background: transparent;
     width: 10px;
@@ -530,7 +588,7 @@ QScrollBar::add-page, QScrollBar::sub-page {
     background: transparent;
 }
 
-/* ---------- 提示与消息框 ---------- */
+/* ========== 提示与消息框 ========== */
 QToolTip {
     background: #1B2430;
     color: #FFFFFF;
@@ -545,12 +603,42 @@ QMessageBox QLabel {
     color: #1B2430;
 }
 
-/* ---------- 对话框按钮 ---------- */
+/* ========== 对话框按钮 ========== */
 QDialogButtonBox QPushButton {
     min-width: 72px;
 }
 
-/* ---------- 分隔条 ---------- */
+/* ========== 统计页等级进度条 ========== */
+QProgressBar#classBar {
+    background: #F4F6FA;
+    border: none;
+    border-radius: 10px;
+    text-align: center;
+}
+QProgressBar#classBar::chunk {
+    border-radius: 10px;
+}
+QProgressBar#classBar[accent="first"]::chunk {
+    background: #F5E7A0;
+}
+QProgressBar#classBar[accent="second"]::chunk {
+    background: #CBD5E1;
+}
+
+/* ========== 页面标题 ========== */
+#pageTitle {
+    font-size: 16px;
+    font-weight: 600;
+    color: #1B2430;
+    padding: 0 0 4px 0;
+}
+
+/* ========== 卡片悬浮效果 ========== */
+#statCard:hover, #infoCard:hover {
+    border-color: #C3CAD8;
+}
+
+/* ========== 分隔条 ========== */
 QSplitter::handle {
     background: transparent;
     width: 6px;

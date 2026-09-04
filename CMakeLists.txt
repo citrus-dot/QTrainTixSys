@@ -11,9 +11,20 @@ set(CMAKE_AUTORCC ON)
 qt_add_executable(09025208_3
     WIN32 MACOSX_BUNDLE
     main.cpp
+    donutchart.cpp
+    donutchart.h
     mainwindow.cpp
     mainwindow.h
     mainwindow.ui
+    statisticspage.cpp
+    statisticspage.h
+    sidebarwidget.cpp
+    sidebarwidget.h
+    trainlistview.cpp
+    trainlistview.h
+    querypage.cpp
+    querypage.h
+    querypage.ui
     addtraindialog.cpp
     addtraindialog.h
     addtraindialog.ui
@@ -23,8 +34,6 @@ qt_add_executable(09025208_3
     ticketview.cpp
     ticketview.h
     ticketview.ui
-    trainlistview.cpp
-    trainlistview.h
     seattableview.cpp
     seattableview.h
     seattabledialog.cpp
@@ -39,11 +48,6 @@ qt_add_executable(09025208_3
     refunddialog.h
     seatmappopup.cpp
     seatmappopup.h
-    sidebarwidget.cpp
-    sidebarwidget.h
-    querypage.cpp
-    querypage.h
-    querypage.ui
     fadedialog.cpp
     fadedialog.h
     seat.cpp

@@ -28,7 +28,6 @@ private slots:
     void onRefundTicket();
     void onTrainDoubleClicked();
     void onSeatTable();
-    void onQuery();
     void onAbout();
     void onPageSelected(int index);
     void onTrainSelectionChanged(const QString &no);

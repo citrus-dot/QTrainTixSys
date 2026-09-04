@@ -6,15 +6,15 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1100</width>
-    <height>680</height>
+    <width>1120</width>
+    <height>700</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>列车客运售票管理系统</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <layout class="QHBoxLayout" name="rootLayout">
+   <layout class="QVBoxLayout" name="rootLayout">
     <property name="spacing">
      <number>0</number>
     </property>
@@ -31,11 +31,8 @@
      <number>0</number>
     </property>
     <item>
-     <widget class="SidebarWidget" name="sidebar"/>
-    </item>
-    <item>
-     <widget class="QWidget" name="mainArea">
-      <layout class="QVBoxLayout" name="mainLayout">
+     <widget class="QWidget" name="bodyArea">
+      <layout class="QHBoxLayout" name="bodyLayout">
        <property name="spacing">
         <number>0</number>
        </property>
@@ -52,195 +49,210 @@
         <number>0</number>
        </property>
        <item>
-        <widget class="QWidget" name="topBar">
-         <property name="objectName">
-          <string>topBar</string>
-         </property>
-         <layout class="QHBoxLayout" name="topBarLayout">
+        <widget class="SidebarWidget" name="sidebar"/>
+       </item>
+       <item>
+        <widget class="QWidget" name="mainArea">
+         <layout class="QVBoxLayout" name="mainLayout">
+          <property name="spacing">
+           <number>0</number>
+          </property>
           <property name="leftMargin">
-           <number>24</number>
+           <number>0</number>
           </property>
           <property name="topMargin">
-           <number>12</number>
+           <number>0</number>
           </property>
           <property name="rightMargin">
-           <number>16</number>
+           <number>0</number>
           </property>
           <property name="bottomMargin">
-           <number>12</number>
+           <number>0</number>
           </property>
           <item>
-           <widget class="QLabel" name="pageTitle">
-            <property name="objectName">
-             <string>pageTitle</string>
-            </property>
-            <property name="text">
-             <string>班次管理</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <spacer name="topSpacer">
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>40</width>
-              <height>20</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-          <item>
-           <widget class="QPushButton" name="openButton">
-            <property name="text">
-             <string>打开</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QPushButton" name="saveButton">
-            <property name="text">
-             <string>保存</string>
-            </property>
+           <widget class="QStackedWidget" name="contentStack">
+            <!-- 页面0：班次管理 -->
+            <widget class="QWidget" name="trainPage">
+             <layout class="QVBoxLayout" name="trainPageLayout">
+              <property name="spacing">
+               <number>14</number>
+              </property>
+              <property name="leftMargin">
+               <number>24</number>
+              </property>
+              <property name="topMargin">
+               <number>20</number>
+              </property>
+              <property name="rightMargin">
+               <number>24</number>
+              </property>
+              <property name="bottomMargin">
+               <number>20</number>
+              </property>
+              <item>
+               <widget class="QLabel" name="pageTitle">
+                <property name="text">
+                 <string>班次管理</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QWidget" name="actionGroup">
+                <layout class="QHBoxLayout" name="actionGroupLayout">
+                 <property name="spacing">
+                  <number>8</number>
+                 </property>
+                 <property name="leftMargin">
+                  <number>10</number>
+                 </property>
+                 <property name="topMargin">
+                  <number>6</number>
+                 </property>
+                 <property name="rightMargin">
+                  <number>10</number>
+                 </property>
+                 <property name="bottomMargin">
+                  <number>6</number>
+                 </property>
+                 <item>
+                  <widget class="QPushButton" name="openButton">
+                   <property name="text">
+                    <string>打开文件</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QPushButton" name="saveButton">
+                   <property name="text">
+                    <string>保存文件</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QFrame" name="sep1">
+                   <property name="frameShape">
+                    <enum>QFrame::VLine</enum>
+                   </property>
+                   <property name="frameShadow">
+                    <enum>QFrame::Sunken</enum>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QPushButton" name="addButton">
+                   <property name="text">
+                    <string>新增班次</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QPushButton" name="removeButton">
+                   <property name="text">
+                    <string>删除班次</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QFrame" name="sep2">
+                   <property name="frameShape">
+                    <enum>QFrame::VLine</enum>
+                   </property>
+                   <property name="frameShadow">
+                    <enum>QFrame::Sunken</enum>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QPushButton" name="sellButton">
+                   <property name="text">
+                    <string>售票</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QPushButton" name="refundButton">
+                   <property name="text">
+                    <string>退票</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QPushButton" name="seatButton">
+                   <property name="text">
+                    <string>座位登记</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <spacer name="actionSpacer">
+                   <property name="orientation">
+                    <enum>Qt::Horizontal</enum>
+                   </property>
+                   <property name="sizeHint" stdset="0">
+                    <size>
+                     <width>40</width>
+                     <height>20</height>
+                    </size>
+                   </property>
+                  </spacer>
+                 </item>
+                </layout>
+               </widget>
+              </item>
+              <item>
+               <widget class="TrainListView" name="trainListView"/>
+              </item>
+             </layout>
+            </widget>
+            <!-- 页面1：查询 -->
+            <widget class="QWidget" name="queryPageContainer">
+             <layout class="QVBoxLayout" name="queryPageLayout">
+              <property name="leftMargin">
+               <number>24</number>
+              </property>
+              <property name="topMargin">
+               <number>20</number>
+              </property>
+              <property name="rightMargin">
+               <number>24</number>
+              </property>
+              <property name="bottomMargin">
+               <number>20</number>
+              </property>
+              <item>
+               <widget class="QueryPage" name="queryPageWidget"/>
+              </item>
+             </layout>
+            </widget>
+            <!-- 页面2：统计 -->
+            <widget class="QWidget" name="statsPageContainer">
+             <layout class="QVBoxLayout" name="statsPageLayout">
+              <property name="leftMargin">
+               <number>24</number>
+              </property>
+              <property name="topMargin">
+               <number>20</number>
+              </property>
+              <property name="rightMargin">
+               <number>24</number>
+              </property>
+              <property name="bottomMargin">
+               <number>20</number>
+              </property>
+              <item>
+               <widget class="StatisticsPage" name="statsPageWidget"/>
+              </item>
+             </layout>
+            </widget>
            </widget>
           </item>
          </layout>
-        </widget>
-       </item>
-       <item>
-        <widget class="QStackedWidget" name="pages">
-         <widget class="QWidget" name="trainPage">
-          <layout class="QVBoxLayout" name="trainPageLayout">
-           <property name="spacing">
-            <number>12</number>
-           </property>
-           <property name="leftMargin">
-            <number>24</number>
-           </property>
-           <property name="topMargin">
-            <number>16</number>
-           </property>
-           <property name="rightMargin">
-            <number>24</number>
-           </property>
-           <property name="bottomMargin">
-            <number>16</number>
-           </property>
-           <item>
-            <layout class="QHBoxLayout" name="actionRow">
-             <property name="spacing">
-              <number>10</number>
-             </property>
-             <item>
-              <widget class="QPushButton" name="addButton">
-               <property name="text">
-                <string>新增班次</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QPushButton" name="removeButton">
-               <property name="text">
-                <string>删除班次</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QPushButton" name="sellButton">
-               <property name="text">
-                <string>售票</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QPushButton" name="refundButton">
-               <property name="text">
-                <string>退票</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QPushButton" name="seatButton">
-               <property name="text">
-                <string>座位登记</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <spacer name="actionSpacer">
-               <property name="orientation">
-                <enum>Qt::Horizontal</enum>
-               </property>
-               <property name="sizeHint" stdset="0">
-                <size>
-                 <width>40</width>
-                 <height>20</height>
-                </size>
-               </property>
-              </spacer>
-             </item>
-            </layout>
-           </item>
-           <item>
-            <widget class="TrainListView" name="trainListView"/>
-           </item>
-          </layout>
-         </widget>
-         <widget class="QWidget" name="queryPageContainer">
-          <layout class="QVBoxLayout" name="queryPageLayout">
-           <property name="leftMargin">
-            <number>24</number>
-           </property>
-           <property name="topMargin">
-            <number>16</number>
-           </property>
-           <property name="rightMargin">
-            <number>24</number>
-           </property>
-           <property name="bottomMargin">
-            <number>16</number>
-           </property>
-           <item>
-            <widget class="QueryPage" name="queryPageWidget"/>
-           </item>
-          </layout>
-         </widget>
         </widget>
        </item>
       </layout>
      </widget>
     </item>
    </layout>
-  </widget>
-  <widget class="QMenuBar" name="menubar">
-   <property name="geometry">
-    <rect>
-     <x>0</x>
-     <y>0</y>
-     <width>1100</width>
-     <height>37</height>
-    </rect>
-   </property>
-   <widget class="QMenu" name="menuFile">
-    <property name="title">
-     <string>文件(&amp;F)</string>
-    </property>
-    <addaction name="actionNew"/>
-    <addaction name="actionOpen"/>
-    <addaction name="actionSave"/>
-    <addaction name="separator"/>
-    <addaction name="actionExit"/>
-   </widget>
-   <widget class="QMenu" name="menuHelp">
-    <property name="title">
-     <string>帮助(&amp;H)</string>
-    </property>
-    <addaction name="actionAbout"/>
-   </widget>
-   <addaction name="menuFile"/>
-   <addaction name="menuHelp"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <action name="actionNew">
@@ -297,6 +309,12 @@
    <class>QueryPage</class>
    <extends>QWidget</extends>
    <header>querypage.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>StatisticsPage</class>
+   <extends>QWidget</extends>
+   <header>statisticspage.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

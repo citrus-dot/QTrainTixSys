@@ -2,6 +2,7 @@
     <qresource prefix="/">
         <file>icons/nav-train.svg</file>
         <file>icons/nav-search.svg</file>
+        <file>icons/nav-chart.svg</file>
         <file>icons/action-add.svg</file>
         <file>icons/action-add-white.svg</file>
         <file>icons/action-delete.svg</file>

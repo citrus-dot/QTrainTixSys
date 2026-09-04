@@ -12,80 +12,91 @@ SidebarWidget::SidebarWidget(QWidget *parent)
     : QWidget(parent)
 {
     setObjectName("sidebar");
-    // 自定义 QWidget 子类需启用该属性，QSS 的 background 才能生效
     setAttribute(Qt::WA_StyledBackground, true);
-    setFixedWidth(220);
+    setFixedWidth(240);
 
     auto *layout = new QVBoxLayout(this);
-    layout->setContentsMargins(14, 20, 14, 14);
-    layout->setSpacing(6);
+    layout->setContentsMargins(16, 24, 16, 16);
+    layout->setSpacing(4);
 
-    // 品牌区：图标 + 标题 + 副标题
-    auto *brandRow = new QHBoxLayout;
-    brandRow->setSpacing(10);
+    // 品牌区
     auto *brandIcon = new QLabel(this);
-    brandIcon->setPixmap(QIcon(":/icons/nav-train.svg").pixmap(28, 28));
-    auto *brandText = new QLabel("列车售票系统", this);
-    brandText->setObjectName("sidebarBrand");
-    brandRow->addWidget(brandIcon);
-    brandRow->addWidget(brandText);
-    brandRow->addStretch();
-    layout->addLayout(brandRow);
+    brandIcon->setPixmap(QIcon(":/icons/nav-train.svg").pixmap(36, 36));
+    brandIcon->setAlignment(Qt::AlignCenter);
+    layout->addWidget(brandIcon);
 
-    auto *subtitle = new QLabel("客运售票管理系统", this);
+    auto *brand = new QLabel("列车售票系统", this);
+    brand->setObjectName("sidebarBrand");
+    brand->setAlignment(Qt::AlignCenter);
+    layout->addWidget(brand);
+
+    auto *subtitle = new QLabel("课程设计作业", this);
     subtitle->setObjectName("sidebarSubtitle");
+    subtitle->setAlignment(Qt::AlignCenter);
     layout->addWidget(subtitle);
 
-    layout->addSpacing(14);
+    layout->addSpacing(20);
 
-    // 导航分组标题
+    // 功能导航分组标题
     auto *navLabel = new QLabel("功能导航", this);
     navLabel->setObjectName("sidebarSection");
     layout->addWidget(navLabel);
 
+    // 导航按钮组
     m_group = new QButtonGroup(this);
     m_group->setExclusive(true);
 
-    auto addNav = [&](const QString &text, const QString &icon, int id) {
-        auto *btn = new QPushButton(QIcon(icon), text, this);
+    struct NavItem { QString text; QString icon; int id; };
+    const NavItem items[] = {
+        {"班次管理", ":/icons/nav-train.svg", 0},
+        {"查询",     ":/icons/nav-search.svg", 1},
+        {"统计",     ":/icons/nav-chart.svg",  2},
+    };
+
+    for (const auto &ni : items) {
+        auto *btn = new QPushButton(ni.text, this);
         btn->setProperty("nav", true);
         btn->setCheckable(true);
         btn->setCursor(Qt::PointingHandCursor);
-        btn->setIconSize(QSize(20, 20));
-        m_group->addButton(btn, id);
-        m_navButtons.append(btn);
+        btn->setIcon(QIcon(ni.icon));
+        btn->setIconSize(QSize(26, 26));
+        btn->setFixedHeight(56);
+        m_group->addButton(btn, ni.id);
         layout->addWidget(btn);
-    };
-
-    addNav("班次管理", ":/icons/nav-train.svg", 0);
-    addNav("查询", ":/icons/nav-search.svg", 1);
+    }
 
     layout->addStretch();
 
-    // 底部信息卡：填充空白并传达数据存储方式
+    // 底部统计信息卡
     auto *infoCard = new QFrame(this);
     infoCard->setObjectName("sidebarInfo");
     auto *infoLayout = new QVBoxLayout(infoCard);
-    infoLayout->setContentsMargins(12, 10, 12, 10);
-    infoLayout->setSpacing(4);
-    auto *infoTitle = new QLabel("本地数据存储", infoCard);
+    infoLayout->setContentsMargins(14, 12, 14, 12);
+    infoLayout->setSpacing(6);
+
+    auto *infoTitle = new QLabel("数据概览", infoCard);
     infoTitle->setObjectName("sidebarInfoTitle");
-    auto *infoSub = new QLabel("数据保存在 .dat 文件", infoCard);
-    infoSub->setObjectName("sidebarInfoSub");
+
+    m_statsLabel = new QLabel("班次 0  ·  余票 0  ·  已售 0", infoCard);
+    m_statsLabel->setObjectName("sidebarInfoSub");
+
     infoLayout->addWidget(infoTitle);
-    infoLayout->addWidget(infoSub);
+    infoLayout->addWidget(m_statsLabel);
     layout->addWidget(infoCard);
 
-    layout->addSpacing(6);
+    layout->addSpacing(8);
 
-    auto *aboutBtn = new QPushButton(QIcon(":/icons/about.svg"), "关于", this);
+    // 关于按钮 + 版本号
+    auto *aboutBtn = new QPushButton(" 关于", this);
     aboutBtn->setProperty("nav", true);
     aboutBtn->setCursor(Qt::PointingHandCursor);
+    aboutBtn->setIcon(QIcon(":/icons/about.svg"));
     aboutBtn->setIconSize(QSize(20, 20));
+    aboutBtn->setFixedHeight(44);
     layout->addWidget(aboutBtn);
     connect(aboutBtn, &QPushButton::clicked, this, &SidebarWidget::aboutClicked);
 
-    auto *version = new QLabel("版本号 v0.1.16", this);
+    auto *version = new QLabel("版本号 v0.2.0", this);
     version->setObjectName("sidebarVersion");
     layout->addWidget(version);
 
@@ -101,4 +112,10 @@ void SidebarWidget::setCurrentPage(int index)
 int SidebarWidget::currentPage() const
 {
     return m_group->checkedId();
+}
+
+void SidebarWidget::updateStats(int trainCount, int remainingSeats, int soldSeats)
+{
+    m_statsLabel->setText(QString("班次 %1  ·  余票 %2  ·  已售 %3")
+                          .arg(trainCount).arg(remainingSeats).arg(soldSeats));
 }

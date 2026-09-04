@@ -5,8 +5,9 @@
 
 class QButtonGroup;
 class QPushButton;
+class QLabel;
 
-// 左侧导航栏：品牌区 + 页面导航 + 底部关于
+// 左侧导航栏 v0.2.0：大图标垂直按钮 + 底部统计信息
 class SidebarWidget : public QWidget
 {
     Q_OBJECT
@@ -16,13 +17,15 @@ public:
     void setCurrentPage(int index);
     int currentPage() const;
 
+    void updateStats(int trainCount, int remainingSeats, int soldSeats);
+
 signals:
     void pageSelected(int index);
     void aboutClicked();
 
 private:
     QButtonGroup *m_group;
-    QList<QPushButton *> m_navButtons;
+    QLabel *m_statsLabel;
 };
 
 #endif // SIDEBARWIDGET_H
