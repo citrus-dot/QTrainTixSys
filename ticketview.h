@@ -5,6 +5,7 @@
 #include "train.h"
 
 namespace Ui { class TicketView; }
+class TicketCard;
 
 class TicketView : public FadeDialog
 {
@@ -20,6 +21,7 @@ private slots:
 
 private:
     Ui::TicketView *ui;
+    TicketCard *m_card;   // 自绘车票（订单/支付数据的持有者）
     const Train *m_train;
     QString m_name;
     QString m_id;

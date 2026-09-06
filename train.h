@@ -40,6 +40,7 @@ public:
     QString carriageClassText(int carriage) const;  // "一等座"/"二等座"
     double priceOf(int carriage) const;             // 按车厢等级返回票价
     bool isSeatOccupied(int carriage, int seatNo) const;
+    const Seat &seatAt(int carriage, int seatNo) const; // 越界时返回空座位
 
     static bool isValidTime(const QString &t);  // HH:MM
     static bool isValidDate(const QString &d);  // YYYY-MM-DD

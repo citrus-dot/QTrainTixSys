@@ -10,6 +10,10 @@ class TestTrainSystem : public QObject
 private slots:
     void addTrainSuccess();
     void addTrainDuplicate();
+    void updateTrainRename();
+    void updateTrainConflict();
+    void updateTrainShrinkRejected();
+    void updateTrainKeepsSeats();
     void removeTrain();
     void findTrain();
     void fileRoundTrip();
@@ -32,6 +36,62 @@ void TestTrainSystem::addTrainDuplicate()
     QVERIFY(sys.addTrain(t1));
     QVERIFY(!sys.addTrain(t2));
     QCOMPARE(sys.trains().size(), 1);
+}
+
+void TestTrainSystem::updateTrainRename()
+{
+    TrainSystem sys;
+    Train t("G100", "2026-09-01", "08:00", "南京", "上海", 2, 3);
+    sys.addTrain(t);
+    Train renamed("G200", "2026-09-01", "08:30", "南京", "上海", 2, 3);
+    QVERIFY(sys.updateTrain("G100", renamed));
+    QVERIFY(sys.findTrain("G100") == nullptr);
+    QVERIFY(sys.findTrain("G200") != nullptr);
+}
+
+void TestTrainSystem::updateTrainConflict()
+{
+    TrainSystem sys;
+    sys.addTrain(Train("G100", "2026-09-01", "08:00", "南京", "上海", 2, 3));
+    sys.addTrain(Train("G200", "2026-09-02", "09:00", "北京", "广州", 2, 3));
+    // 把 G100 改成已存在的 G200 → 拒绝
+    Train conflict("G200", "2026-09-03", "10:00", "上海", "北京", 2, 3);
+    QVERIFY(!sys.updateTrain("G100", conflict));
+    QCOMPARE(sys.findTrain("G200")->departTime(), QString("09:00")); // 原班次未被覆盖
+}
+
+void TestTrainSystem::updateTrainShrinkRejected()
+{
+    TrainSystem sys;
+    Train t("G100", "2026-09-01", "08:00", "南京", "上海", 2, 5);
+    sys.addTrain(t);
+    sys.findTrain("G100")->sellTicket("张三", "110101199001011234", 2, 4); // 2号车厢4号座
+    // 缩编到 1 节车厢 → 已售座位超出范围，必须拒绝
+    Train shrink("G100", "2026-09-01", "08:00", "南京", "上海", 1, 5);
+    QVERIFY(!sys.updateTrain("G100", shrink));
+    // 缩小每厢座位数同理
+    Train shrinkSeats("G100", "2026-09-01", "08:00", "南京", "上海", 2, 3);
+    QVERIFY(!sys.updateTrain("G100", shrinkSeats));
+    // 范围刚好覆盖 → 允许
+    Train ok("G100", "2026-09-01", "08:00", "南京", "上海", 2, 4);
+    QVERIFY(sys.updateTrain("G100", ok));
+    QVERIFY(sys.findTrain("G100")->isSeatOccupied(2, 4));
+}
+
+void TestTrainSystem::updateTrainKeepsSeats()
+{
+    TrainSystem sys;
+    Train t("G100", "2026-09-01", "08:00", "南京", "上海", 2, 5, 100.0, 60.0);
+    sys.addTrain(t);
+    sys.findTrain("G100")->sellTicket("张三", "110101199001011234", 1, 2);
+    // 改时间不改编组：售座记录应完整保留
+    Train edited("G100", "2026-09-01", "07:30", "南京", "上海", 2, 5, 100.0, 60.0);
+    QVERIFY(sys.updateTrain("G100", edited));
+    Train *p = sys.findTrain("G100");
+    QCOMPARE(p->departTime(), QString("07:30"));
+    QVERIFY(p->isSeatOccupied(1, 2));
+    QCOMPARE(p->seats()[1].name(), QString("张三"));
+    QCOMPARE(p->remainingSeats(), 9);
 }
 
 void TestTrainSystem::removeTrain()
@@ -125,6 +185,20 @@ void TestTrainSystem::oldFormatCompatibility()
     QCOMPARE(t->seatsPerCarriage(), 3);
     QCOMPARE(t->remainingSeats(), 3);
     QVERIFY(t->stops().isEmpty());
+
+    // 旧格式班次再保存、再加载，应保持旧格式往返无损（无日期字段）
+    const QString path2 = dir.filePath("old_roundtrip.dat");
+    QVERIFY(sys.saveToFile(path2));
+    TrainSystem sys2;
+    QVERIFY(sys2.loadFromFile(path2));
+    QCOMPARE(sys2.trains().size(), 1);
+    Train *t2 = sys2.findTrain("K100");
+    QVERIFY(t2);
+    QCOMPARE(t2->date(), QString());
+    QCOMPARE(t2->departTime(), QString("09:00"));
+    QCOMPARE(t2->carriages(), 1);
+    QCOMPARE(t2->seatsPerCarriage(), 3);
+    QCOMPARE(t2->remainingSeats(), 3);
 }
 
 int main(int argc, char *argv[])

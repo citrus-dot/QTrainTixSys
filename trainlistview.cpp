@@ -1,8 +1,8 @@
 #include "trainlistview.h"
+#include "tableutil.h"
 #include <QLabel>
 #include <QLineEdit>
 #include <QTableWidget>
-#include <QHeaderView>
 #include <QVBoxLayout>
 #include <QStackedLayout>
 #include <QFrame>
@@ -11,12 +11,22 @@
 #include <QResizeEvent>
 #include <QTimer>
 
-static QTableWidgetItem *makeCenteredItem(const QString &text)
+namespace {
+
+// 数值列排序项：QTableWidget 默认按文本排序，"99" 会排在 "100" 之后，
+// 车厢数/座位数/余票三列改用数值比较
+class NumericItem : public QTableWidgetItem
 {
-    auto *item = new QTableWidgetItem(text);
-    item->setTextAlignment(Qt::AlignCenter);
-    return item;
-}
+public:
+    explicit NumericItem(const QString &text)
+        : QTableWidgetItem(text) {}
+    bool operator<(const QTableWidgetItem &other) const override
+    {
+        return text().toDouble() < other.text().toDouble();
+    }
+};
+
+} // namespace
 
 TrainListView::TrainListView(QWidget *parent)
     : QWidget(parent)
@@ -42,6 +52,7 @@ TrainListView::TrainListView(QWidget *parent)
     m_table->setSelectionBehavior(QAbstractItemView::SelectRows);
     m_table->setEditTriggers(QAbstractItemView::NoEditTriggers);
     m_table->setAlternatingRowColors(true);
+    m_table->setSortingEnabled(true); // 列头点击排序（填充数据时临时关闭）
 
     // 空状态引导：置于表格框内（与表格同尺寸切换）
     m_emptyFrame = new QFrame(this);
@@ -95,7 +106,10 @@ void TrainListView::applyFilter()
 {
     const QString keyword = m_searchEdit->text().trimmed();
     const QString prevNo = currentTrainNo();
-    m_table->setRowCount(0);
+    // 填充期间关闭排序：避免 insertRow 被当前排序规则重排导致行错乱
+    m_table->setSortingEnabled(false);
+    m_table->clearContents();
+    m_table->setRowCount(m_trains.size()); // 预分配，避免逐行插入
     int row = 0;
     for (const Train &t : m_trains) {
         if (!keyword.isEmpty()
@@ -106,17 +120,18 @@ void TrainListView::applyFilter()
         QTableWidgetItem *noItem = new QTableWidgetItem(t.no());
         noItem->setData(Qt::UserRole, t.no());
         noItem->setTextAlignment(Qt::AlignCenter);
-        m_table->insertRow(row);
         m_table->setItem(row, 0, noItem);
         m_table->setItem(row, 1, makeCenteredItem(t.date()));
         m_table->setItem(row, 2, makeCenteredItem(t.departTime()));
         m_table->setItem(row, 3, makeCenteredItem(t.from()));
         m_table->setItem(row, 4, makeCenteredItem(t.to()));
-        m_table->setItem(row, 5, makeCenteredItem(QString::number(t.carriages())));
-        m_table->setItem(row, 6, makeCenteredItem(QString::number(t.seatsPerCarriage())));
-        m_table->setItem(row, 7, makeCenteredItem(QString::number(t.remainingSeats())));
+        m_table->setItem(row, 5, new NumericItem(QString::number(t.carriages())));
+        m_table->setItem(row, 6, new NumericItem(QString::number(t.seatsPerCarriage())));
+        m_table->setItem(row, 7, new NumericItem(QString::number(t.remainingSeats())));
         ++row;
     }
+    m_table->setRowCount(row);
+    m_table->setSortingEnabled(true);
     // 恢复之前选中的班次（若仍在过滤结果中）
     if (!prevNo.isEmpty()) {
         for (int r = 0; r < m_table->rowCount(); ++r) {
@@ -135,33 +150,13 @@ void TrainListView::applyFilter()
             : "没有匹配的班次\n请更换搜索关键词");
 
     // 计算各列内容权重（按最长内容宽度），显示后按权重填满可用宽度
-    m_table->horizontalHeader()->setSectionResizeMode(QHeaderView::Interactive);
-    m_table->resizeColumnsToContents();
-    m_weights.clear();
-    m_totalWeight = 0;
-    for (int i = 0; i < m_table->columnCount(); ++i) {
-        const int w = qMax(1, m_table->columnWidth(i));
-        m_weights.append(w);
-        m_totalWeight += w;
-    }
+    computeColumnWeights(m_table, m_weights);
     applyColumnWidths();
 }
 
 void TrainListView::applyColumnWidths()
 {
-    if (m_weights.isEmpty() || m_table->rowCount() == 0)
-        return;
-    const int avail = m_table->viewport()->width();
-    if (avail <= 0)
-        return;
-    int assigned = 0;
-    for (int i = 0; i < m_table->columnCount(); ++i) {
-        const int w = (i == m_table->columnCount() - 1)
-            ? avail - assigned
-            : avail * m_weights[i] / m_totalWeight;
-        m_table->setColumnWidth(i, w);
-        assigned += w;
-    }
+    applyWeightedColumnWidths(m_table, m_weights);
 }
 
 void TrainListView::showEvent(QShowEvent *event)

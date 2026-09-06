@@ -1,6 +1,7 @@
 #include "seatstatustable.h"
+#include "tableutil.h"
+#include "palette.h"
 #include <QTableWidget>
-#include <QHeaderView>
 #include <QVBoxLayout>
 #include <QTableWidgetItem>
 #include <QColor>
@@ -44,7 +45,6 @@ void SeatStatusTable::rebuild()
 {
     m_table->setRowCount(0);
     m_weights.clear();
-    m_totalWeight = 0;
     if (!m_train)
         return;
     int row = 0;
@@ -59,19 +59,19 @@ void SeatStatusTable::rebuild()
             auto *stateItem = new QTableWidgetItem;
             // 可操作/不可操作都显示状态色块（■），区别只是是否可选中
             if (occupied)
-                stateItem->setForeground(QColor("#E53E3E")); // 红色，已售
+                stateItem->setForeground(Palette::kDanger); // 红色，已售
             else
-                stateItem->setForeground(QColor("#10B981")); // 绿色，空座
+                stateItem->setForeground(Palette::kSuccess); // 绿色，空座
             stateItem->setText("■");
             stateItem->setTextAlignment(Qt::AlignCenter);
 
             // 背景色：不可操作浅灰，可操作一等座浅灰蓝底，可操作二等座白底
             if (!operable)
-                stateItem->setBackground(QColor("#E3E7EF"));
+                stateItem->setBackground(Palette::kBorder);
             else if (classType == 1)
-                stateItem->setBackground(QColor("#F8FAFC"));
+                stateItem->setBackground(Palette::kTableAlt);
             else
-                stateItem->setBackground(QColor("#FFFFFF"));
+                stateItem->setBackground(Palette::kWhite);
 
             // 统一放大方块大小，确保所有色块一致
             stateItem->setFont(QFont(stateItem->font().family(), 16));
@@ -87,7 +87,7 @@ void SeatStatusTable::rebuild()
             sItem->setTextAlignment(Qt::AlignCenter);
             m_table->setItem(row, 2, sItem);
             if (occupied) {
-                const Seat &seat = m_train->seats()[(c - 1) * m_train->seatsPerCarriage() + s - 1];
+                const Seat &seat = m_train->seatAt(c, s);
                 auto *nItem = new QTableWidgetItem(seat.name());
                 nItem->setTextAlignment(Qt::AlignCenter);
                 m_table->setItem(row, 3, nItem);
@@ -108,38 +108,20 @@ void SeatStatusTable::rebuild()
                 for (int col = 0; col < 5; ++col) {
                     QTableWidgetItem *it = m_table->item(row, col);
                     it->setFlags(it->flags() & ~Qt::ItemIsSelectable);
-                    it->setForeground(QColor("#A8B0BF"));
+                    it->setForeground(Palette::kTextGhost);
                 }
             }
             ++row;
         }
     }
     // 计算各列内容权重（按最长内容宽度），显示后按权重填满可用宽度
-    m_table->horizontalHeader()->setSectionResizeMode(QHeaderView::Interactive);
-    m_table->resizeColumnsToContents();
-    for (int i = 0; i < m_table->columnCount(); ++i) {
-        const int w = qMax(1, m_table->columnWidth(i));
-        m_weights.append(w);
-        m_totalWeight += w;
-    }
+    computeColumnWeights(m_table, m_weights);
     applyColumnWidths();
 }
 
 void SeatStatusTable::applyColumnWidths()
 {
-    if (m_weights.isEmpty() || m_table->rowCount() == 0)
-        return;
-    const int avail = m_table->viewport()->width();
-    if (avail <= 0)
-        return;
-    int assigned = 0;
-    for (int i = 0; i < m_table->columnCount(); ++i) {
-        const int w = (i == m_table->columnCount() - 1)
-            ? avail - assigned
-            : avail * m_weights[i] / m_totalWeight;
-        m_table->setColumnWidth(i, w);
-        assigned += w;
-    }
+    applyWeightedColumnWidths(m_table, m_weights);
 }
 
 void SeatStatusTable::showEvent(QShowEvent *event)

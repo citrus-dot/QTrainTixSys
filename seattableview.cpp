@@ -1,5 +1,6 @@
 #include "seattableview.h"
 #include "registerdialog.h"
+#include "tableutil.h"
 #include <QLabel>
 #include <QComboBox>
 #include <QPushButton>
@@ -89,12 +90,7 @@ void SeatTableView::setTrain(Train *train)
 void SeatTableView::rebuildGrid()
 {
     // 清空旧座位按钮
-    QLayoutItem *child;
-    while ((child = m_grid->takeAt(0)) != nullptr) {
-        if (child->widget())
-            child->widget()->deleteLater();
-        delete child;
-    }
+    clearLayout(m_grid);
     m_seatButtons.clear();
 
     if (!m_train) {
@@ -134,7 +130,7 @@ void SeatTableView::onSeatClicked(int seatNo)
         const Seat &s = m_train->seats()[(m_carriage - 1) * m_train->seatsPerCarriage() + seatNo - 1];
         QToolTip::showText(QCursor::pos(),
                            QString("已售 · %1号车厢 %2号座\n旅客: %3\n身份证: %4")
-                               .arg(m_carriage).arg(seatNo).arg(s.name()).arg(s.id()),
+                               .arg(m_carriage).arg(seatNo).arg(s.name()).arg(maskId(s.id())),
                            this);
         return;
     }
@@ -155,7 +151,7 @@ void SeatTableView::styleSeatButton(QPushButton *btn, int seatNo)
     const bool occupied = m_train->isSeatOccupied(m_carriage, seatNo);
     btn->setProperty("state", occupied ? "occupied" : "empty");
     if (occupied) {
-        const Seat &s = m_train->seats()[(m_carriage - 1) * m_train->seatsPerCarriage() + seatNo - 1];
+        const Seat &s = m_train->seatAt(m_carriage, seatNo);
         btn->setToolTip(QString("已售: %1").arg(s.name()));
     } else {
         btn->setToolTip(QString("%1号座 · 点击登记").arg(seatNo));

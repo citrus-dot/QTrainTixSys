@@ -34,6 +34,8 @@ qt_add_executable(ticket_system
     ticketview.cpp
     ticketview.h
     ticketview.ui
+    ticketcard.cpp
+    ticketcard.h
     seattableview.cpp
     seattableview.h
     seattabledialog.cpp
@@ -53,13 +55,16 @@ qt_add_executable(ticket_system
     seat.cpp
     train.cpp
     trainsystem.cpp
+    tableutil.h
+    palette.h
     resources.qrc
 )
 
 set_target_properties(ticket_system PROPERTIES
+    OUTPUT_NAME "列车售票系统"
     MACOSX_BUNDLE_BUNDLE_NAME "列车售票系统"
-    MACOSX_BUNDLE_BUNDLE_VERSION "0.2.0"
-    MACOSX_BUNDLE_SHORT_VERSION_STRING "0.2.0"
+    MACOSX_BUNDLE_BUNDLE_VERSION "0.3.0"
+    MACOSX_BUNDLE_SHORT_VERSION_STRING "0.3.0"
 )
 
 target_link_libraries(ticket_system

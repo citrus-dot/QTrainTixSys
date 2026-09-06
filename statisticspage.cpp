@@ -1,15 +1,18 @@
 #include "statisticspage.h"
 #include "donutchart.h"
+#include "tableutil.h"
+#include "palette.h"
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QGridLayout>
 #include <QLabel>
 #include <QFrame>
 #include <QTableWidget>
-#include <QHeaderView>
 #include <QProgressBar>
 #include <QPropertyAnimation>
-#include <QIcon>
+#include <QShowEvent>
+#include <QResizeEvent>
+#include <QTimer>
 
 StatisticsPage::StatisticsPage(QWidget *parent)
     : QWidget(parent)
@@ -24,58 +27,6 @@ StatisticsPage::StatisticsPage(QWidget *parent)
     auto *title = new QLabel("数据统计", this);
     title->setObjectName("pageTitle");
     layout->addWidget(title);
-
-    // === 三张概览卡片 ===
-    auto *cardRow = new QHBoxLayout;
-    cardRow->setSpacing(16);
-
-    auto makeCard = [&](const QString &label, const QString &accent) -> QWidget * {
-        auto *card = new QFrame(this);
-        card->setObjectName("statCard");
-        card->setProperty("accent", accent);
-        card->setFixedHeight(110);
-        auto *cl = new QVBoxLayout(card);
-        cl->setContentsMargins(16, 12, 16, 12);
-        cl->setSpacing(4);
-        auto *val = new QLabel("0", card);
-        val->setObjectName("statValue");
-        val->setAlignment(Qt::AlignCenter);
-        auto *lb = new QLabel(label, card);
-        lb->setObjectName("statLabel");
-        lb->setAlignment(Qt::AlignCenter);
-        cl->addStretch();
-        cl->addWidget(val);
-        cl->addWidget(lb);
-        cl->addStretch();
-        return card;
-    };
-
-    QWidget *c1 = makeCard("总班次数", "blue");
-    QWidget *c2 = makeCard("总座位容量", "green");
-    QWidget *c3 = makeCard("已售座位", "red");
-    m_trainCount = c1->findChild<QLabel *>("statValue");
-    m_capacityLabel = c2->findChild<QLabel *>("statValue");
-    m_soldLabel = c3->findChild<QLabel *>("statValue");
-    cardRow->addWidget(c1);
-    cardRow->addWidget(c2);
-    cardRow->addWidget(c3);
-    layout->addLayout(cardRow);
-
-    // 余票卡片
-    auto *remCard = new QFrame(this);
-    remCard->setObjectName("statCard");
-    remCard->setProperty("accent", "blue");
-    remCard->setFixedHeight(60);
-    auto *rl = new QHBoxLayout(remCard);
-    rl->setContentsMargins(20, 0, 20, 0);
-    auto *remLabel = new QLabel("当前余票：", remCard);
-    remLabel->setObjectName("statLabel");
-    m_remainingLabel = new QLabel("0", remCard);
-    m_remainingLabel->setObjectName("statValue");
-    rl->addWidget(remLabel);
-    rl->addWidget(m_remainingLabel);
-    rl->addStretch();
-    layout->addWidget(remCard);
 
     // === 中段：环形图 + 等级分布（双栏） ===
     auto *midRow = new QHBoxLayout;
@@ -112,7 +63,10 @@ StatisticsPage::StatisticsPage(QWidget *parent)
         outBar = new QProgressBar(w);
         outBar->setObjectName("classBar");
         outBar->setProperty("accent", accent);
-        outBar->setRange(0, 100);
+        // 量程 0-1000（0.1% 分辨率）：value 是 int，量程 100 时 OutCubic 尾段
+        // 每帧增量 <1 被量化，最后一帧会从 ~97 跳到 100（一格 3px，肉眼可见）；
+        // 1000 量程下量化步进约 0.3px，动画收尾平滑
+        outBar->setRange(0, 1000);
         outBar->setValue(0);
         outBar->setTextVisible(false);
         outBar->setFixedHeight(20);
@@ -145,8 +99,7 @@ StatisticsPage::StatisticsPage(QWidget *parent)
     m_trainTable->setSelectionBehavior(QAbstractItemView::SelectRows);
     m_trainTable->setEditTriggers(QAbstractItemView::NoEditTriggers);
     m_trainTable->setAlternatingRowColors(true);
-    m_trainTable->horizontalHeader()->setStretchLastSection(true);
-    m_trainTable->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+    m_trainTable->horizontalHeader()->setDefaultAlignment(Qt::AlignCenter);
     tl->addWidget(m_trainTable, 1);
     layout->addWidget(tableCard, 2);
 }
@@ -155,19 +108,36 @@ StatisticsPage::ClassStats StatisticsPage::calcClassStats(const QVector<Train> &
 {
     ClassStats stats = {};
     for (const Train &t : trains) {
-        // 假设每节车厢的前半部分是一等座，后半部分是二等座
-        // 实际上 train.h 没有明确的等级区分，按车厢编号奇偶模拟
-        if (t.carriages() % 2 == 0) {
-            stats.firstCarriages += t.carriages() / 2;
-            stats.secondCarriages += t.carriages() / 2;
-        } else {
-            stats.firstCarriages += t.carriages() / 2;
-            stats.secondCarriages += t.carriages() / 2 + 1;
+        for (int c = 1; c <= t.carriages(); ++c) {
+            if (t.carriageClass(c) == 1) {
+                ++stats.firstCarriages;
+                stats.firstSeats += t.seatsPerCarriage();
+            } else {
+                ++stats.secondCarriages;
+                stats.secondSeats += t.seatsPerCarriage();
+            }
         }
     }
-    stats.firstSeats = stats.firstCarriages * 50;    // 假设每车厢50座
-    stats.secondSeats = stats.secondCarriages * 50;
     return stats;
+}
+
+void StatisticsPage::animateBarTo(QProgressBar *bar, int target)
+{
+    // 停掉该进度条上仍在运行的旧动画，避免多个动画抢占同一属性
+    const auto oldAnims = bar->findChildren<QPropertyAnimation *>();
+    for (auto *a : oldAnims)
+        a->stop();
+    if (target <= 0) {
+        bar->setValue(0);
+        return;
+    }
+    // bar 量程 0-1000，target 是百分比，动画值同比例放大 10 倍
+    auto *anim = new QPropertyAnimation(bar, "value", bar);
+    anim->setDuration(600);
+    anim->setStartValue(0);
+    anim->setEndValue(target * 10);
+    anim->setEasingCurve(QEasingCurve::OutCubic);
+    anim->start(QAbstractAnimation::DeleteWhenStopped);
 }
 
 void StatisticsPage::setData(const QVector<Train> &trains)
@@ -180,23 +150,22 @@ void StatisticsPage::setData(const QVector<Train> &trains)
     }
     const int remaining = totalCap - sold;
 
-    // 更新概览卡片
-    m_trainCount->setText(QString::number(trains.size()));
-    m_capacityLabel->setText(QString::number(totalCap));
-    m_soldLabel->setText(QString::number(sold));
-    m_remainingLabel->setText(QString::number(remaining));
-
-    // 更新环形图
+    // 更新环形图：概览数据以注释形式并入图中
+    // 标题下注释行显示总班次数，环心显示总座位容量，引出线标注已售/余票
+    m_donutChart->setNote(trains.isEmpty() ? QString("暂无数据")
+                                           : QString("总班次 %1").arg(trains.size()));
+    // 环形图：从 6 点方向起顺时针展开，余票(绿)在前、已售(红)接续收尾回起点
+    // 已售淡红 / 余票淡绿；注释线指向各自色段中点，文字就近放四角
     QVector<DonutSlice> slices;
     if (totalCap > 0) {
-        slices.append({"已售", static_cast<double>(sold), QColor("#E5484D")});
-        slices.append({"余票", static_cast<double>(remaining), QColor("#2F6FED")});
+        slices.append({"余票", static_cast<double>(remaining), Palette::kDonutRemain});
+        slices.append({"已售", static_cast<double>(sold), Palette::kDonutSold});
     }
     m_donutChart->setSlices(slices);
     m_donutChart->setTitle("余票分布");
     m_donutChart->animate();
 
-    // 更新等级分布
+    // 更新等级分布（进度条从 0 入场动画到目标占比）
     ClassStats cs = calcClassStats(trains);
     const int totalSeats = cs.firstSeats + cs.secondSeats;
     if (totalSeats > 0) {
@@ -204,13 +173,13 @@ void StatisticsPage::setData(const QVector<Train> &trains)
         const int sp = 100 - fp;
         m_firstLabel->setText(QString("一等座 %1 座 (%2%)").arg(cs.firstSeats).arg(fp));
         m_secondLabel->setText(QString("二等座 %1 座 (%2%)").arg(cs.secondSeats).arg(sp));
-        m_firstProgress->setValue(fp);
-        m_secondProgress->setValue(sp);
+        animateBarTo(m_firstProgress, fp);
+        animateBarTo(m_secondProgress, sp);
     } else {
         m_firstLabel->setText("一等座 0 座 (0%)");
         m_secondLabel->setText("二等座 0 座 (0%)");
-        m_firstProgress->setValue(0);
-        m_secondProgress->setValue(0);
+        animateBarTo(m_firstProgress, 0);
+        animateBarTo(m_secondProgress, 0);
     }
 
     // 更新班次详情表格
@@ -223,22 +192,22 @@ void StatisticsPage::setData(const QVector<Train> &trains)
         const int trainSold = trainCap - trainRemaining;
         const double rate = trainCap > 0 ? 100.0 * trainSold / trainCap : 0;
 
-        m_trainTable->setItem(row, 0, new QTableWidgetItem(t.no()));
-        m_trainTable->setItem(row, 1, new QTableWidgetItem(QString("%1 → %2").arg(t.from(), t.to())));
-        m_trainTable->setItem(row, 2, new QTableWidgetItem(QString::number(t.carriages())));
-        m_trainTable->setItem(row, 3, new QTableWidgetItem(QString::number(trainCap)));
-        m_trainTable->setItem(row, 4, new QTableWidgetItem(QString::number(trainRemaining)));
-        m_trainTable->setItem(row, 5, new QTableWidgetItem(QString::number(trainSold)));
-        m_trainTable->setItem(row, 6, new QTableWidgetItem(QString("%1%").arg(rate, 0, 'f', 1)));
-
+        auto *rateItem = makeCenteredItem(QString("%1%").arg(rate, 0, 'f', 1));
         // 上座率超50% 标红提示
-        if (rate > 50) {
-            m_trainTable->item(row, 6)->setForeground(QColor("#E5484D"));
-        } else {
-            m_trainTable->item(row, 6)->setForeground(QColor("#1E7B45"));
-        }
+        rateItem->setForeground(rate > 50 ? Palette::kDanger : Palette::kSuccess);
+
+        m_trainTable->setItem(row, 0, makeCenteredItem(t.no()));
+        m_trainTable->setItem(row, 1, makeCenteredItem(QString("%1 → %2").arg(t.from(), t.to())));
+        m_trainTable->setItem(row, 2, makeCenteredItem(QString::number(t.carriages())));
+        m_trainTable->setItem(row, 3, makeCenteredItem(QString::number(trainCap)));
+        m_trainTable->setItem(row, 4, makeCenteredItem(QString::number(trainRemaining)));
+        m_trainTable->setItem(row, 5, makeCenteredItem(QString::number(trainSold)));
+        m_trainTable->setItem(row, 6, rateItem);
     }
-    m_trainTable->resizeColumnsToContents();
+
+    // 各列内容权重（按最长内容宽度），按权重填满可用宽度
+    computeColumnWeights(m_trainTable, m_weights);
+    applyColumnWidths();
 
     // 空状态
     if (trains.isEmpty()) {
@@ -246,7 +215,25 @@ void StatisticsPage::setData(const QVector<Train> &trains)
         m_trainTable->setSpan(0, 0, 1, 7);
         auto *empty = new QTableWidgetItem("暂无数据，请先打开或创建数据文件");
         empty->setTextAlignment(Qt::AlignCenter);
-        empty->setForeground(QColor("#A8B0BF"));
+        empty->setForeground(Palette::kTextGhost);
         m_trainTable->setItem(0, 0, empty);
     }
+}
+
+void StatisticsPage::applyColumnWidths()
+{
+    applyWeightedColumnWidths(m_trainTable, m_weights);
+}
+
+void StatisticsPage::showEvent(QShowEvent *event)
+{
+    QWidget::showEvent(event);
+    // 等事件循环完成布局后再分配列宽，避免视口宽度尚未就绪
+    QTimer::singleShot(0, this, &StatisticsPage::applyColumnWidths);
+}
+
+void StatisticsPage::resizeEvent(QResizeEvent *event)
+{
+    QWidget::resizeEvent(event);
+    applyColumnWidths();
 }

@@ -84,17 +84,12 @@ void SeatMapPopup::showNear(const QPoint &globalPos)
         y = globalPos.y() - height() - 12;
     move(qMax(x, avail.left() + 4), qMax(y, avail.top() + 4));
 
-    // 淡入动画
+    // 淡入动画（DeleteWhenStopped 自动释放）
     setWindowOpacity(0.0);
     show();
-    if (m_fadeIn) {
-        m_fadeIn->stop();
-        delete m_fadeIn;
-    }
-    m_fadeIn = new QPropertyAnimation(this, "windowOpacity", this);
-    m_fadeIn->setDuration(150);
-    m_fadeIn->setStartValue(0.0);
-    m_fadeIn->setEndValue(1.0);
-    m_fadeIn->start(QAbstractAnimation::DeleteWhenStopped);
-    m_fadeIn = nullptr;
+    auto *fadeIn = new QPropertyAnimation(this, "windowOpacity", this);
+    fadeIn->setDuration(150);
+    fadeIn->setStartValue(0.0);
+    fadeIn->setEndValue(1.0);
+    fadeIn->start(QAbstractAnimation::DeleteWhenStopped);
 }

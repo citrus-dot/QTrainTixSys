@@ -96,7 +96,7 @@ SidebarWidget::SidebarWidget(QWidget *parent)
     layout->addWidget(aboutBtn);
     connect(aboutBtn, &QPushButton::clicked, this, &SidebarWidget::aboutClicked);
 
-    auto *version = new QLabel("版本号 v0.2.0", this);
+    auto *version = new QLabel("版本号 v0.3.0", this);
     version->setObjectName("sidebarVersion");
     layout->addWidget(version);
 

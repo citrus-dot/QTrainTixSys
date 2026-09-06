@@ -9,6 +9,8 @@ class DonutChart;
 class QLabel;
 class QProgressBar;
 class QTableWidget;
+class QShowEvent;
+class QResizeEvent;
 
 // 统计页面：环形图 + 等级分布图 + 班次列表表格
 class StatisticsPage : public QWidget
@@ -19,6 +21,10 @@ public:
 
     void setData(const QVector<Train> &trains);
 
+protected:
+    void showEvent(QShowEvent *event) override;
+    void resizeEvent(QResizeEvent *event) override;
+
 private:
     struct ClassStats {
         int firstCarriages;
@@ -28,17 +34,16 @@ private:
     };
 
     ClassStats calcClassStats(const QVector<Train> &trains);
+    void animateBarTo(QProgressBar *bar, int target); // 占比条入场动画（0 → target）
+    void applyColumnWidths();
 
     DonutChart *m_donutChart;
-    QLabel *m_trainCount;
-    QLabel *m_capacityLabel;
-    QLabel *m_soldLabel;
-    QLabel *m_remainingLabel;
     QProgressBar *m_firstProgress;
     QProgressBar *m_secondProgress;
     QLabel *m_firstLabel;
     QLabel *m_secondLabel;
     QTableWidget *m_trainTable;
+    QVector<int> m_weights;
 };
 
 #endif // STATISTICSPAGE_H

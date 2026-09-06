@@ -5,6 +5,8 @@
         <file>icons/nav-chart.svg</file>
         <file>icons/action-add.svg</file>
         <file>icons/action-add-white.svg</file>
+        <file>icons/action-edit.svg</file>
+        <file>icons/action-edit-white.svg</file>
         <file>icons/action-delete.svg</file>
         <file>icons/action-delete-white.svg</file>
         <file>icons/action-ticket.svg</file>

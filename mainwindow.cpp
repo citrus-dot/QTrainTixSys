@@ -15,6 +15,12 @@
 #include <QCloseEvent>
 #include <QPropertyAnimation>
 #include <QAbstractAnimation>
+#include <QVariantAnimation>
+#include <QParallelAnimationGroup>
+#include <QGraphicsOpacityEffect>
+#include <QLayout>
+#include <QSettings>
+#include <QFile>
 
 namespace {
 
@@ -79,6 +85,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     // 操作按钮
     connect(ui->addButton, &QPushButton::clicked, this, &MainWindow::onAddTrain);
+    connect(ui->editButton, &QPushButton::clicked, this, &MainWindow::onEditTrain);
     connect(ui->removeButton, &QPushButton::clicked, this, &MainWindow::onRemoveTrain);
     connect(ui->sellButton, &QPushButton::clicked, this, &MainWindow::onSellTicket);
     connect(ui->refundButton, &QPushButton::clicked, this, &MainWindow::onRefundTicket);
@@ -106,6 +113,7 @@ MainWindow::MainWindow(QWidget *parent)
     setupHoverIcon(ui->openButton, ":/icons/file-open.svg", ":/icons/file-open-white.svg", this);
     setupHoverIcon(ui->saveButton, ":/icons/file-save.svg", ":/icons/file-save-white.svg", this);
     setupHoverIcon(ui->addButton, ":/icons/action-add.svg", ":/icons/action-add-white.svg", this);
+    setupHoverIcon(ui->editButton, ":/icons/action-edit.svg", ":/icons/action-edit-white.svg", this);
     setupHoverIcon(ui->removeButton, ":/icons/action-delete.svg", ":/icons/action-delete-white.svg", this);
     setupHoverIcon(ui->sellButton, ":/icons/action-ticket.svg", ":/icons/action-ticket-white.svg", this);
     setupHoverIcon(ui->refundButton, ":/icons/action-refund.svg", ":/icons/action-refund-white.svg", this);
@@ -115,6 +123,7 @@ MainWindow::MainWindow(QWidget *parent)
     setupClickAnimation(ui->openButton);
     setupClickAnimation(ui->saveButton);
     setupClickAnimation(ui->addButton);
+    setupClickAnimation(ui->editButton);
     setupClickAnimation(ui->removeButton);
     setupClickAnimation(ui->sellButton);
     setupClickAnimation(ui->refundButton);
@@ -130,11 +139,24 @@ MainWindow::MainWindow(QWidget *parent)
 
     refreshTrainList();
     onTrainSelectionChanged(QString());
+
+    // 恢复上次窗口几何并自动打开上次的数据文件
+    restoreWindowState();
 }
 
 MainWindow::~MainWindow()
 {
     delete ui;
+}
+
+bool MainWindow::loadFile(const QString &path)
+{
+    if (!m_system.loadFromFile(path))
+        return false;
+    m_filePath = path;
+    ui->trainListView->clearSearch();
+    refreshTrainList();
+    return true;
 }
 
 void MainWindow::onNewFile()
@@ -144,6 +166,7 @@ void MainWindow::onNewFile()
     ui->trainListView->clearSearch();
     refreshTrainList();
     setWindowTitle("列车客运售票管理系统");
+    m_dirty = false;
     ui->statusbar->showMessage("已新建空数据", 3000);
 }
 
@@ -160,6 +183,7 @@ void MainWindow::onOpenFile()
     ui->trainListView->clearSearch();
     refreshTrainList();
     setWindowTitle(QString("列车客运售票管理系统 - %1").arg(path));
+    m_dirty = false;
     ui->statusbar->showMessage(QString("已打开: %1").arg(path), 3000);
 }
 
@@ -176,6 +200,7 @@ void MainWindow::onSaveFile()
     }
     m_filePath = path;
     setWindowTitle(QString("列车客运售票管理系统 - %1").arg(path));
+    m_dirty = false;
     ui->statusbar->showMessage(QString("已保存: %1").arg(path), 3000);
 }
 
@@ -190,7 +215,29 @@ void MainWindow::onAddTrain()
         return;
     }
     refreshTrainList();
+    markDirty();
     ui->statusbar->showMessage(QString("已新增班次 %1").arg(t.no()), 3000);
+}
+
+void MainWindow::onEditTrain()
+{
+    Train *t = currentTrain();
+    if (!t) {
+        QMessageBox::information(this, "提示", "请先选择一个班次");
+        return;
+    }
+    const QString oldNo = t->no();
+    AddTrainDialog dlg(*t, this);
+    if (dlg.exec() != QDialog::Accepted)
+        return;
+    if (!m_system.updateTrain(oldNo, dlg.getTrain())) {
+        QMessageBox::warning(this, "错误",
+                             "修改失败：新班次号与其他班次冲突，\n或已售座位超出了新的车厢/座位范围");
+        return;
+    }
+    refreshTrainList();
+    markDirty();
+    ui->statusbar->showMessage(QString("已修改班次 %1").arg(oldNo), 3000);
 }
 
 void MainWindow::onRemoveTrain()
@@ -200,14 +247,16 @@ void MainWindow::onRemoveTrain()
         QMessageBox::information(this, "提示", "请先选择一个班次");
         return;
     }
+    const QString no = t->no(); // 先保存班次号，removeTrain 后 t 指针失效
     if (QMessageBox::question(this, "确认删除",
                               QString("确定删除班次 %1（%2 → %3）吗？")
-                                  .arg(t->no(), t->from(), t->to()))
+                                  .arg(no, t->from(), t->to()))
         != QMessageBox::Yes)
         return;
-    m_system.removeTrain(t->no());
+    m_system.removeTrain(no);
     refreshTrainList();
-    ui->statusbar->showMessage(QString("已删除班次 %1").arg(t->no()), 3000);
+    markDirty();
+    ui->statusbar->showMessage(QString("已删除班次 %1").arg(no), 3000);
 }
 
 void MainWindow::onSellTicket()
@@ -219,7 +268,10 @@ void MainWindow::onSellTicket()
     }
     SellDialog dlg(this);
     dlg.setTrain(t);
-    connect(&dlg, &SellDialog::dataChanged, this, &MainWindow::refreshTrainList);
+    connect(&dlg, &SellDialog::dataChanged, this, [this] {
+        markDirty();
+        refreshTrainList();
+    });
     dlg.exec();
 }
 
@@ -232,7 +284,10 @@ void MainWindow::onRefundTicket()
     }
     RefundDialog dlg(this);
     dlg.setTrain(t);
-    connect(&dlg, &RefundDialog::dataChanged, this, &MainWindow::refreshTrainList);
+    connect(&dlg, &RefundDialog::dataChanged, this, [this] {
+        markDirty();
+        refreshTrainList();
+    });
     dlg.exec();
 }
 
@@ -242,7 +297,10 @@ void MainWindow::onTrainDoubleClicked()
     if (!t)
         return;
     TicketDialog dlg(t, this);
-    connect(&dlg, &TicketDialog::dataChanged, this, &MainWindow::refreshTrainList);
+    connect(&dlg, &TicketDialog::dataChanged, this, [this] {
+        markDirty();
+        refreshTrainList();
+    });
     dlg.exec();
 }
 
@@ -250,7 +308,7 @@ void MainWindow::onAbout()
 {
     QMessageBox::about(this, "关于",
                        "<h3>列车客运售票管理系统</h3>"
-                       "<p>版本 v0.2.0</p>"
+                       "<p>版本 v0.3.0</p>"
                        "<p>课程设计作业 · Qt Widgets</p>"
                        "<p>卡片式仪表盘 · 数据可视化</p>");
 }
@@ -264,13 +322,17 @@ void MainWindow::onSeatTable()
     }
     SeatTableDialog dlg(this);
     dlg.setTrain(t);
-    connect(&dlg, &SeatTableDialog::dataChanged, this, &MainWindow::refreshTrainList);
+    connect(&dlg, &SeatTableDialog::dataChanged, this, [this] {
+        markDirty();
+        refreshTrainList();
+    });
     dlg.exec();
 }
 
 void MainWindow::onTrainSelectionChanged(const QString &no)
 {
     const bool has = !no.isEmpty();
+    ui->editButton->setEnabled(has);
     ui->removeButton->setEnabled(has);
     ui->sellButton->setEnabled(has);
     ui->refundButton->setEnabled(has);
@@ -279,13 +341,61 @@ void MainWindow::onTrainSelectionChanged(const QString &no)
 
 void MainWindow::onPageSelected(int index)
 {
+    // 各页面自带标题（班次管理页为 .ui 静态 pageTitle，查询/统计页有内部标题），
+    // 这里只负责切换与数据刷新
     ui->contentStack->setCurrentIndex(index);
-    QString titles[] = {"班次管理", "查询", "统计"};
-    ui->pageTitle->setText(titles[index]);
+    animatePageIn(ui->contentStack->currentWidget());
     if (index == 2) {
         // 切换到统计页时刷新数据
         ui->statsPageWidget->setData(m_system.trains());
     }
+}
+
+void MainWindow::animatePageIn(QWidget *page)
+{
+    if (!page)
+        return;
+    // 快速连点侧边栏时，停掉上一场未完成的动画，以最后点击的页面为准
+    if (m_pageAnim)
+        m_pageAnim->stop();
+
+    // 淡入：QGraphicsOpacityEffect，结束后移除避免常驻合成开销
+    auto *eff = new QGraphicsOpacityEffect(page);
+    eff->setOpacity(0.0);
+    page->setGraphicsEffect(eff);
+    auto *fade = new QPropertyAnimation(eff, "opacity");
+    fade->setDuration(260);
+    fade->setStartValue(0.0);
+    fade->setEndValue(1.0);
+    fade->setEasingCurve(QEasingCurve::OutCubic);
+
+    // 上浮：页面布局顶部 margin 从 +8px 回落（不动 geometry，避免与布局打架）
+    QLayout *lay = page->layout();
+    QVariantAnimation *rise = nullptr;
+    if (lay) {
+        const int base = lay->contentsMargins().top();
+        rise = new QVariantAnimation(page);
+        rise->setStartValue(base + 8);
+        rise->setEndValue(base);
+        rise->setDuration(260);
+        rise->setEasingCurve(QEasingCurve::OutCubic);
+        connect(rise, &QVariantAnimation::valueChanged, page,
+                [lay, base](const QVariant &v) {
+                    QMargins m = lay->contentsMargins();
+                    m.setTop(qBound(base, v.toInt(), base + 8));
+                    lay->setContentsMargins(m);
+                });
+    }
+
+    auto *group = new QParallelAnimationGroup(page);
+    group->addAnimation(fade);
+    if (rise)
+        group->addAnimation(rise);
+    connect(group, &QParallelAnimationGroup::finished, page, [page]() {
+        page->setGraphicsEffect(nullptr); // setGraphicsEffect 会 delete 旧 effect
+    });
+    m_pageAnim = group;
+    group->start(QAbstractAnimation::DeleteWhenStopped);
 }
 
 void MainWindow::refreshTrainList()
@@ -311,4 +421,55 @@ void MainWindow::updateStats()
 Train *MainWindow::currentTrain()
 {
     return m_system.findTrain(ui->trainListView->currentTrainNo());
+}
+
+void MainWindow::markDirty()
+{
+    m_dirty = true;
+}
+
+// 关闭窗口前：未保存改动时给出 保存/不保存/取消；随后记录窗口几何与上次文件
+void MainWindow::closeEvent(QCloseEvent *event)
+{
+    if (m_dirty) {
+        QMessageBox box(this);
+        box.setWindowTitle("未保存的改动");
+        box.setText("当前数据有未保存的改动，是否保存？");
+        QPushButton *saveBtn = box.addButton(QMessageBox::Save);
+        QPushButton *discardBtn = box.addButton(QMessageBox::Discard);
+        QPushButton *cancelBtn = box.addButton(QMessageBox::Cancel);
+        box.exec();
+        const QPushButton *clicked = static_cast<QPushButton *>(box.clickedButton());
+        if (clicked == cancelBtn) {
+            event->ignore();
+            return;
+        }
+        if (clicked == saveBtn) {
+            onSaveFile(); // 保存被用户取消或失败时仍为脏，中止关闭
+            if (m_dirty) {
+                event->ignore();
+                return;
+            }
+        } else if (clicked == discardBtn) {
+            // 不保存，直接关闭
+        }
+    }
+    QSettings settings("SEU", "TrainSystem");
+    settings.setValue("geometry", saveGeometry());
+    settings.setValue("lastFile", m_filePath);
+    event->accept();
+}
+
+// 从 QSettings 恢复窗口几何；上次的数据文件存在则自动打开
+void MainWindow::restoreWindowState()
+{
+    QSettings settings("SEU", "TrainSystem");
+    restoreGeometry(settings.value("geometry").toByteArray());
+    const QString last = settings.value("lastFile").toString();
+    if (last.isEmpty() || !QFile::exists(last))
+        return;
+    if (loadFile(last)) {
+        setWindowTitle(QString("列车客运售票管理系统 - %1").arg(last));
+        ui->statusbar->showMessage(QString("已自动打开: %1").arg(last), 3000);
+    }
 }

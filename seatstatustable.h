@@ -35,7 +35,6 @@ private:
     bool m_sell = true;
     QTableWidget *m_table;
     QVector<int> m_weights; // 各列内容权重（rebuild 时计算）
-    int m_totalWeight = 0;
 };
 
 #endif // SEATSTATUSTABLE_H

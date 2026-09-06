@@ -47,7 +47,6 @@ private:
     QStackedLayout *m_stack;
     QVector<Train> m_trains;
     QVector<int> m_weights; // 各列内容权重（数据刷新时计算）
-    int m_totalWeight = 0;
 };
 
 #endif // TRAINLISTVIEW_H

@@ -104,6 +104,14 @@ bool Train::isSeatOccupied(int carriage, int seatNo) const
     return !m_seats[index].isEmpty();
 }
 
+const Seat &Train::seatAt(int carriage, int seatNo) const
+{
+    static const Seat empty;
+    if (carriage < 1 || carriage > m_carriages || seatNo < 1 || seatNo > m_seatsPerCarriage)
+        return empty;
+    return m_seats[(carriage - 1) * m_seatsPerCarriage + (seatNo - 1)];
+}
+
 bool Train::isValidTime(const QString &t)
 {
     return QRegularExpression("^([01]\\d|2[0-3]):[0-5]\\d$").match(t).hasMatch();

@@ -1,5 +1,7 @@
 #include "ticketview.h"
 #include "ui_ticketview.h"
+#include "ticketcard.h"
+#include "tableutil.h"
 #include <QFile>
 #include <QFileDialog>
 #include <QTextStream>
@@ -17,15 +19,11 @@ TicketView::TicketView(const Train *train, const QString &name, const QString &i
     , m_seatNo(seatNo)
 {
     ui->setupUi(this);
-    ui->noLabel->setText(train->no());
-    ui->dateLabel->setText(train->date());
-    ui->timeLabel->setText(train->departTime());
-    ui->routeLabel->setText(QString("%1 → %2").arg(train->from(), train->to()));
-    ui->passengerLabel->setText(name);
-    ui->idLabel->setText(id);
-    ui->seatLabel->setText(QString("%1号车厢 %2号座").arg(carriage).arg(seatNo));
-    ui->classLabel->setText(train->carriageClassText(carriage));
-    ui->priceLabel->setText(QString("¥ %1").arg(train->priceOf(carriage), 0, 'f', 2));
+    // 车票为自绘仿真票面（TicketCard），由构造函数插入 verticalLayout 首位
+    m_card = new TicketCard(train, name, id, carriage, seatNo, this);
+    ui->verticalLayout->insertWidget(0, m_card, 1);
+    // 弹窗尺寸包住车票（.ui 里的 geometry 是旧表单布局的遗留值，比票面小）
+    adjustSize();
     ui->saveButton->setProperty("primary", true);
     // 强制刷新样式，确保 QSS 属性选择器立即生效
     ui->saveButton->style()->unpolish(ui->saveButton);
@@ -51,18 +49,28 @@ void TicketView::onSaveTicket()
         QMessageBox::warning(this, "错误", "车票保存失败");
         return;
     }
+    // 票面展示与保存文件共用同一份订单/支付数据（来自 TicketCard 构造时生成）
     QTextStream out(&file);
-    out << "==================== 列车车票 ====================\n";
+    out << "==================== 中国铁路 电子客票 ====================\n";
+    out << "订单号:   " << m_card->orderNo() << "\n";
+    out << "车票票号: " << m_card->ticketNo() << "\n";
+    out << "售票码:   " << m_card->saleCode() << "\n";
+    out << "----------------------------------------------------------\n";
     out << "班次号:   " << m_train->no() << "\n";
-    out << "日期:     " << m_train->date() << "\n";
-    out << "发车时间: " << m_train->departTime() << "\n";
-    out << "行程:     " << m_train->from() << " → " << m_train->to() << "\n";
-    out << "------------------------------------------------\n";
+    out << "乘车日期: " << m_train->date() << "  " << m_train->departTime() << "开\n";
+    out << "行程:     " << m_train->from() << "站 → " << m_train->to() << "站\n";
+    out << "座位:     " << m_carriage << "号车厢 " << m_seatNo << "号\n";
+    out << "席别:     " << m_train->carriageClassText(m_carriage) << "\n";
+    out << "票价:     " << QString::number(m_train->priceOf(m_carriage), 'f', 1) << " 元\n";
+    out << "----------------------------------------------------------\n";
     out << "乘客:     " << m_name << "\n";
-    out << "身份证号: " << m_id << "\n";
-    out << "座位:     " << m_carriage << "号车厢 " << m_seatNo << "号座\n";
-    out << "等级:     " << m_train->carriageClassText(m_carriage) << "\n";
-    out << "票价:     " << QString::number(m_train->priceOf(m_carriage), 'f', 2) << " 元\n";
-    out << "==================================================\n";
+    out << "身份证号: " << maskId(m_id) << "\n";
+    out << "提示:     限乘当日当次车\n";
+    out << "----------------------------------------------------------\n";
+    out << "支付方式: " << m_card->payMethod() << "\n";
+    out << "支付流水号: " << m_card->txnNo() << "\n";
+    out << "支付时间: " << m_card->payTime() << "\n";
+    out << "支付金额: ¥" << QString::number(m_train->priceOf(m_carriage), 'f', 2) << "\n";
+    out << "==========================================================\n";
     QMessageBox::information(this, "提示", QString("车票已保存到:\n%1").arg(path));
 }

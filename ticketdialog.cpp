@@ -85,7 +85,7 @@ void TicketDialog::styleSeatButton(QPushButton *btn, int seatNo)
     btn->setProperty("class", m_train->carriageClass(m_selectedCarriage) == 1 ? "first" : "second");
     if (occupied)
         btn->setToolTip(QString("已售: %1")
-            .arg(m_train->seats()[(m_selectedCarriage - 1) * m_train->seatsPerCarriage() + seatNo - 1].name()));
+            .arg(m_train->seatAt(m_selectedCarriage, seatNo).name()));
     else
         btn->setToolTip(QString("%1号座").arg(seatNo));
     btn->style()->unpolish(btn);
@@ -102,7 +102,7 @@ void TicketDialog::updateInfoLabel()
     if (m_selectedSeat > 0) {
         const bool occupied = m_train->isSeatOccupied(m_selectedCarriage, m_selectedSeat);
         if (occupied) {
-            const Seat &s = m_train->seats()[(m_selectedCarriage - 1) * m_train->seatsPerCarriage() + m_selectedSeat - 1];
+            const Seat &s = m_train->seatAt(m_selectedCarriage, m_selectedSeat);
             ui->infoLabel->setText(QString("已选: %1号车厢 %2号座 · 已售给 %3")
                                    .arg(m_selectedCarriage).arg(m_selectedSeat).arg(s.name()));
         } else {

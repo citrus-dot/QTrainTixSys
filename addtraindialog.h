@@ -15,6 +15,8 @@ class AddTrainDialog : public FadeDialog
 
 public:
     explicit AddTrainDialog(QWidget *parent = nullptr);
+    // 编辑模式：回填已有班次信息，标题显示"修改班次"
+    explicit AddTrainDialog(const Train &editTrain, QWidget *parent = nullptr);
     ~AddTrainDialog() override;
 
     Train getTrain() const;
