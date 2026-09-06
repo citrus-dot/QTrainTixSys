@@ -85,21 +85,22 @@ inline int seatGridRow(int seatRow, int aisleAfter)
     return seatRow + (seatRow > aisleAfter ? 1 : 0);
 }
 
-// 过道分隔条：上下两条浅灰细线示意过道边界（样式见 theme.qss #aisleFrame）
-inline QFrame *makeAisleFrame(QWidget *parent)
+// 过道分隔条：上下两条浅灰细线示意过道边界（样式见 theme.qss #aisleFrame）。
+// height 为过道带高度：班次详情与座位块等高，浮窗/登记页用默认窄带
+inline QFrame *makeAisleFrame(QWidget *parent, int height = 12)
 {
     auto *frame = new QFrame(parent);
     frame->setObjectName("aisleFrame");
-    frame->setFixedHeight(12);
+    frame->setFixedHeight(height);
     frame->setAttribute(Qt::WA_StyledBackground, true);
     return frame;
 }
 
 // 在座位网格中插入过道空行（rows 为座位排数，rows < 2 时不画）
-inline void addAisleRow(QGridLayout *grid, int rows, int cols, QWidget *parent)
+inline void addAisleRow(QGridLayout *grid, int rows, int cols, QWidget *parent, int aisleHeight = 12)
 {
     if (rows >= 2)
-        grid->addWidget(makeAisleFrame(parent), rows - 1, 0, 1, cols);
+        grid->addWidget(makeAisleFrame(parent, aisleHeight), rows - 1, 0, 1, cols);
 }
 
 #endif // TABLEUTIL_H

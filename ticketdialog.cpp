@@ -60,6 +60,13 @@ void TicketDialog::rebuildSeatGrid()
     const int seatsPer = m_train->seatsPerCarriage();
     const int rows = (seatsPer + SeatsPerRow - 1) / SeatsPerRow;
     const int aisleAfter = rows - 2; // 过道插在最后两排之间（2排→正中，3排→二/三排间）
+    // 座位图节奏：座位块高 36；过道与座位间距 = 座位高一半(18)；过道带高 = 座位块高(36)；
+    // 图上下留白比座位块高度略短一点(30)
+    const int seatH = 36;
+    const int gap = seatH / 2;
+    const int outer = seatH - 6;
+    ui->seatGridLayout->setVerticalSpacing(gap);
+    ui->seatGridLayout->setContentsMargins(0, outer, 0, outer);
     for (int r = 0; r < rows; ++r) {
         for (int c = 0; c < SeatsPerRow; ++c) {
             const int seatNo = r * SeatsPerRow + c + 1;
@@ -68,14 +75,20 @@ void TicketDialog::rebuildSeatGrid()
             auto *btn = new QPushButton(QString::number(seatNo), ui->seatArea);
             btn->setProperty("seat", true);
             btn->setCursor(Qt::PointingHandCursor);
-            btn->setFixedSize(48, 36);
+            btn->setFixedSize(48, seatH);
             ui->seatGridLayout->addWidget(btn, seatGridRow(r, aisleAfter), c, Qt::AlignCenter);
             m_seatButtons.append(btn);
             connect(btn, &QPushButton::clicked, this, [this, seatNo] { onSeatClicked(seatNo); });
             styleSeatButton(btn, seatNo);
         }
     }
-    addAisleRow(ui->seatGridLayout, rows, SeatsPerRow, ui->seatArea);
+    addAisleRow(ui->seatGridLayout, rows, SeatsPerRow, ui->seatArea, seatH);
+
+    // 按网格实际高度收紧滚动区与窗口：排间距 rows 处 + 过道带，不多留空
+    const int gridH = rows * seatH + 2 * outer
+        + (rows >= 2 ? seatH + rows * gap : 0);
+    ui->seatScroll->setFixedHeight(gridH);
+    setFixedHeight(sizeHint().height());
     updateInfoLabel();
     updateActionButton();
 }
