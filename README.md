@@ -15,6 +15,7 @@
 ![cmake](https://img.shields.io/badge/CMake-3.16%2B-064F8C?logo=cmake&logoColor=white)
 ![tests](https://img.shields.io/badge/tests-Qt%20Test%20·%20CTest-2F6FED)
 ![platform](https://img.shields.io/badge/platform-macOS-999999?logo=apple&logoColor=white)
+![license](https://img.shields.io/badge/license-MIT-63b33f)
 
 ---
 
@@ -91,6 +92,8 @@ ctest --test-dir build --output-on-failure
 ```
 
 首次启动后：顶部「打开」→ 选择仓库内的 `testdata.dat`（内置 5 个班次的示例数据）即可体验全部功能。
+
+> **关于示例数据**：`testdata.dat` 及界面截图中的车次号、城市线路、票价、10/15 座编组、乘客姓名与身份证号等**均为演示而虚构**，不对应任何真实列车、真实车次或真实个人信息；座位数等设定刻意取小值以便完整展示选座与统计功能。
 
 ## 技术架构
 
@@ -174,7 +177,7 @@ ctest --test-dir build --output-on-failure
 
 ## License
 
-暂未正式选取，发布前建议选用 [MIT](https://opensource.org/licenses/MIT) 等宽松许可。
+本项目基于 [MIT License](LICENSE) 发布。
 
 ---
 
