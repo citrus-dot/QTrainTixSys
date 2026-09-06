@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="assets/screenshot-manage.png" alt="QTrainTixSys 主界面" width="820">
+<img src="assets/banner.png" alt="QTrainTixSys" width="760">
 
 </div>
 
@@ -55,6 +55,10 @@ QTrainTixSys 是一个用纯 Qt 6 Widgets 构建的列车客运售票管理系�
 | **窗口记忆** | 重启恢复窗口几何，自动打开上次的数据文件 |
 
 ## 界面预览
+
+**班次管理**（主界面：侧边导航 + 顶部操作栏 + 可视化座位登记）：
+
+![班次管理](assets/screenshot-manage.png)
 
 **余票查询** 与 **数据统计**（环形图带入场动画与悬停弹性加粗交互）：
 
@@ -151,6 +155,7 @@ QTrainTixSys/
 ├── tableutil.h              # 表格 UI 工具
 ├── theme.qss                # 全局浅色扁平主题
 ├── resources.qrc + icons/   # 资源清单 + 线性 SVG 图标
+├── assets/                  # 应用图标（appicon.icns）+ 品牌横幅 + 界面截图
 ├── tests/                   # Qt Test 单元测试（数据层 + 文件往返）
 ├── testdata.dat             # 示例数据（5 班次，覆盖边界用例）
 ├── CODE_GUIDE.md            # 逐文件逐函数代码详解
