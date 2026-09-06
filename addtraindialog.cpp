@@ -23,10 +23,6 @@ AddTrainDialog::AddTrainDialog(QWidget *parent)
     ui->dateBtn->setIconSize(QSize(14, 14));
     updateCalendarIcon();
     connect(ui->dateBtn, &QToolButton::clicked, this, &AddTrainDialog::toggleCalendar);
-    connect(ui->carriagesSpin, &QSpinBox::valueChanged, this, [this](int value) {
-        // 一等车厢号不能超过车厢数（在 accept 中做完整校验，这里仅作提示）
-        Q_UNUSED(value);
-    });
 }
 
 // 编辑模式：把已有班次的字段回填到表单

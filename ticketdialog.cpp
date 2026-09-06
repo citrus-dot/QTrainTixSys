@@ -49,12 +49,7 @@ void TicketDialog::onSeatClicked(int seatNo)
 void TicketDialog::rebuildSeatGrid()
 {
     // 清空旧座位按钮
-    QLayoutItem *child;
-    while ((child = ui->seatGridLayout->takeAt(0)) != nullptr) {
-        if (child->widget())
-            child->widget()->deleteLater();
-        delete child;
-    }
+    clearLayout(ui->seatGridLayout);
     m_seatButtons.clear();
 
     const int seatsPer = m_train->seatsPerCarriage();
