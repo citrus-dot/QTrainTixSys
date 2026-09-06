@@ -2,6 +2,7 @@
 #include "ui_ticketdialog.h"
 #include "registerdialog.h"
 #include "ticketview.h"
+#include "tableutil.h"
 #include <QPushButton>
 #include <QMessageBox>
 #include <QStyle>
@@ -58,6 +59,7 @@ void TicketDialog::rebuildSeatGrid()
 
     const int seatsPer = m_train->seatsPerCarriage();
     const int rows = (seatsPer + SeatsPerRow - 1) / SeatsPerRow;
+    const int aisleAfter = rows - 2; // 过道插在最后两排之间（2排→正中，3排→二/三排间）
     for (int r = 0; r < rows; ++r) {
         for (int c = 0; c < SeatsPerRow; ++c) {
             const int seatNo = r * SeatsPerRow + c + 1;
@@ -67,12 +69,13 @@ void TicketDialog::rebuildSeatGrid()
             btn->setProperty("seat", true);
             btn->setCursor(Qt::PointingHandCursor);
             btn->setFixedSize(48, 36);
-            ui->seatGridLayout->addWidget(btn, r, c, Qt::AlignCenter);
+            ui->seatGridLayout->addWidget(btn, seatGridRow(r, aisleAfter), c, Qt::AlignCenter);
             m_seatButtons.append(btn);
             connect(btn, &QPushButton::clicked, this, [this, seatNo] { onSeatClicked(seatNo); });
             styleSeatButton(btn, seatNo);
         }
     }
+    addAisleRow(ui->seatGridLayout, rows, SeatsPerRow, ui->seatArea);
     updateInfoLabel();
     updateActionButton();
 }

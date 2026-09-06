@@ -2,6 +2,7 @@
 #define TABLEUTIL_H
 
 #include <QLayout>
+#include <QGridLayout>
 #include <QTableWidget>
 #include <QHeaderView>
 #include <QVector>
@@ -73,6 +74,32 @@ inline void clearLayout(QLayout *layout)
             child->widget()->deleteLater();
         delete child;
     }
+}
+
+// ---------- 座位网格过道（TicketDialog / SeatMapPopup / SeatTableView 共用）----------
+
+// 座位排 r 在 QGridLayout 中的实际行号：过道空行插在 aisleAfter 排之后，
+// 其后的座位排整体下移一行（两排→过道居中；三排→过道在第二、三排之间）
+inline int seatGridRow(int seatRow, int aisleAfter)
+{
+    return seatRow + (seatRow > aisleAfter ? 1 : 0);
+}
+
+// 过道分隔条：上下两条浅灰细线示意过道边界（样式见 theme.qss #aisleFrame）
+inline QFrame *makeAisleFrame(QWidget *parent)
+{
+    auto *frame = new QFrame(parent);
+    frame->setObjectName("aisleFrame");
+    frame->setFixedHeight(12);
+    frame->setAttribute(Qt::WA_StyledBackground, true);
+    return frame;
+}
+
+// 在座位网格中插入过道空行（rows 为座位排数，rows < 2 时不画）
+inline void addAisleRow(QGridLayout *grid, int rows, int cols, QWidget *parent)
+{
+    if (rows >= 2)
+        grid->addWidget(makeAisleFrame(parent), rows - 1, 0, 1, cols);
 }
 
 #endif // TABLEUTIL_H

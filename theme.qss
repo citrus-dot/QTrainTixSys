@@ -433,6 +433,13 @@ QLabel[field="value"] {
     font-size: 11px;
     font-weight: 500;
 }
+/* 座位网格过道：空行中上下两条浅灰细线示意过道边界 */
+#aisleFrame {
+    border-top: 1px solid #D9DEE8;
+    border-bottom: 1px solid #D9DEE8;
+    background: transparent;
+    margin: 0 10px;
+}
 #seatCell[state="empty"] {
     background: #EAF7EF;
     color: #1E7B45;

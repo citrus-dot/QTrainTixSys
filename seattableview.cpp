@@ -101,8 +101,9 @@ void SeatTableView::rebuildGrid()
     }
 
     const int seatsPer = m_train->seatsPerCarriage();
-    const int cols = 8;
+    const int cols = 5; // 与车票座位图一致：10 座两排、15 座三排，过道在最后两排之间
     const int rows = (seatsPer + cols - 1) / cols;
+    const int aisleAfter = rows - 2;
     for (int r = 0; r < rows; ++r) {
         for (int c = 0; c < cols; ++c) {
             const int seatNo = r * cols + c + 1;
@@ -112,12 +113,13 @@ void SeatTableView::rebuildGrid()
             btn->setProperty("seat", true);
             btn->setCursor(Qt::PointingHandCursor);
             btn->setFixedSize(52, 34);
-            m_grid->addWidget(btn, r, c, Qt::AlignCenter);
+            m_grid->addWidget(btn, seatGridRow(r, aisleAfter), c, Qt::AlignCenter);
             m_seatButtons.append(btn);
             connect(btn, &QPushButton::clicked, this, [this, seatNo] { onSeatClicked(seatNo); });
             styleSeatButton(btn, seatNo);
         }
     }
+    addAisleRow(m_grid, rows, cols, m_gridContainer);
     m_stack->setCurrentWidget(m_seatButtons.isEmpty() ? m_emptyFrame : m_gridContainer);
     updateStats();
 }

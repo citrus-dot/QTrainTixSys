@@ -1,4 +1,5 @@
 #include "seatmappopup.h"
+#include "tableutil.h"
 #include <QLabel>
 #include <QGridLayout>
 #include <QVBoxLayout>
@@ -37,6 +38,8 @@ SeatMapPopup::SeatMapPopup(const Train &train, int carriage, int selectedSeat, Q
     grid->setSpacing(6);
     const int seatsPer = m_train.seatsPerCarriage();
     const int cols = 5;
+    const int rows = (seatsPer + cols - 1) / cols;
+    const int aisleAfter = rows - 2; // 过道插在最后两排之间
     for (int i = 0; i < seatsPer; ++i) {
         const int seatNo = i + 1;
         auto *cell = new QLabel(QString::number(seatNo), content);
@@ -51,8 +54,9 @@ SeatMapPopup::SeatMapPopup(const Train &train, int carriage, int selectedSeat, Q
             cell->setProperty("state", occupied ? "occupied" : "empty");
         cell->style()->unpolish(cell);
         cell->style()->polish(cell);
-        grid->addWidget(cell, i / cols, i % cols);
+        grid->addWidget(cell, seatGridRow(i / cols, aisleAfter), i % cols);
     }
+    addAisleRow(grid, rows, cols, content);
     layout->addLayout(grid);
 
     auto *legend = new QLabel(

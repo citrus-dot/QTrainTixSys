@@ -19,7 +19,10 @@ class NumericItem : public QTableWidgetItem
 {
 public:
     explicit NumericItem(const QString &text)
-        : QTableWidgetItem(text) {}
+        : QTableWidgetItem(text)
+    {
+        setTextAlignment(Qt::AlignCenter);
+    }
     bool operator<(const QTableWidgetItem &other) const override
     {
         return text().toDouble() < other.text().toDouble();
