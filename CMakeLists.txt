@@ -58,8 +58,17 @@ qt_add_executable(ticket_system
     tableutil.h
     palette.h
     resources.qrc
-    assets/appicon.icns
 )
+
+# 应用图标按平台接入：macOS 用 .icns 进 bundle Resources；Windows 经 .rc 编译进 exe
+if(APPLE)
+    target_sources(ticket_system PRIVATE assets/appicon.icns)
+    set_source_files_properties(assets/appicon.icns PROPERTIES
+        MACOSX_PACKAGE_LOCATION Resources
+    )
+elseif(WIN32)
+    target_sources(ticket_system PRIVATE assets/appicon.rc)
+endif()
 
 set_target_properties(ticket_system PROPERTIES
     OUTPUT_NAME "列车售票系统"
@@ -67,11 +76,6 @@ set_target_properties(ticket_system PROPERTIES
     MACOSX_BUNDLE_BUNDLE_VERSION "0.3.0"
     MACOSX_BUNDLE_SHORT_VERSION_STRING "0.3.0"
     MACOSX_BUNDLE_ICON_FILE "appicon.icns"
-)
-
-# .icns 作为 macOS 资源放进 bundle 的 Resources 目录
-set_source_files_properties(assets/appicon.icns PROPERTIES
-    MACOSX_PACKAGE_LOCATION Resources
 )
 
 target_link_libraries(ticket_system

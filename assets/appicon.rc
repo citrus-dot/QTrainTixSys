@@ -1,0 +1,2 @@
+// Windows 应用图标资源：由 CMake 在 WIN32 平台下编译进可执行文件
+1 ICON "appicon.ico"
