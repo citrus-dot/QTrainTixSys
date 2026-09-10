@@ -5,6 +5,11 @@ find_package(Qt6 6.5 REQUIRED COMPONENTS Core Widgets Test)
 
 qt_standard_project_setup()
 
+# MSVC 默认按系统 ANSI 代码页解读无 BOM 源文件，显式指定 UTF-8 保证中文字面量正确
+if(MSVC)
+    add_compile_options(/utf-8)
+endif()
+
 # 确保 .qrc 资源文件被 AUTORCC 编译进可执行文件
 set(CMAKE_AUTORCC ON)
 
