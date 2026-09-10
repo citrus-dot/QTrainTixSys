@@ -39,6 +39,6 @@ jobs:
         shell: pwsh
         run: |
           gh run view $env:GITHUB_RUN_ID --log-failed --repo $env:GITHUB_REPOSITORY > failed.log
-          $tail = (Get-Content failed.log -Tail 400) -join "`n"
-          $tail | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Encoding utf8
-          gh issue create --repo $env:GITHUB_REPOSITORY --title "Windows build failure ($env:GITHUB_SHA)" --body $tail
+          Get-Content failed.log -Tail 400 | Out-File -FilePath body.log -Encoding utf8
+          Get-Content body.log -Raw | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Encoding utf8
+          gh issue create --repo $env:GITHUB_REPOSITORY --title "Windows build failure ($env:GITHUB_SHA)" --body-file body.log
