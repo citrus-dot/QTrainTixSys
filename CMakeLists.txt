@@ -75,8 +75,15 @@ elseif(WIN32)
     target_sources(ticket_system PRIVATE assets/appicon.rc)
 endif()
 
+# Windows 产物名用 ASCII：中文 exe 名在 GBK 代码页下与 CMake 的 UTF-8 之间会乱码
+if(WIN32)
+    set(APP_OUTPUT_NAME QTrainTixSys)
+else()
+    set(APP_OUTPUT_NAME "列车售票系统")
+endif()
+
 set_target_properties(ticket_system PROPERTIES
-    OUTPUT_NAME "列车售票系统"
+    OUTPUT_NAME "${APP_OUTPUT_NAME}"
     MACOSX_BUNDLE_BUNDLE_NAME "列车售票系统"
     MACOSX_BUNDLE_BUNDLE_VERSION "0.3.0"
     MACOSX_BUNDLE_SHORT_VERSION_STRING "0.3.0"
