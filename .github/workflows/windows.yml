@@ -8,6 +8,9 @@ on:
 jobs:
   build-msvc:
     runs-on: windows-latest
+    permissions:
+      contents: read
+      issues: write
     steps:
       - uses: actions/checkout@v4
 
@@ -36,5 +39,6 @@ jobs:
         shell: pwsh
         run: |
           gh run view $env:GITHUB_RUN_ID --log-failed --repo $env:GITHUB_REPOSITORY > failed.log
-          $tail = (Get-Content failed.log -Tail 300) -join "`n"
+          $tail = (Get-Content failed.log -Tail 400) -join "`n"
+          $tail | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Encoding utf8
           gh issue create --repo $env:GITHUB_REPOSITORY --title "Windows build failure ($env:GITHUB_SHA)" --body $tail
