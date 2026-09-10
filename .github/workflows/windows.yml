@@ -27,7 +27,10 @@ jobs:
         run: cmake -S . -B build -G "Ninja" -DCMAKE_PREFIX_PATH="$env:QT_ROOT_DIR"
 
       - name: Build
-        run: cmake --build build
+        shell: pwsh
+        run: |
+          cmake --build build 2>&1 | Tee-Object -FilePath build.log
+          exit $LASTEXITCODE
 
       - name: Test
         run: ctest --test-dir build --output-on-failure
@@ -38,7 +41,6 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         shell: pwsh
         run: |
-          gh run view $env:GITHUB_RUN_ID --log-failed --repo $env:GITHUB_REPOSITORY > failed.log
-          Get-Content failed.log -Tail 400 | Out-File -FilePath body.log -Encoding utf8
+          Get-Content build.log -Tail 400 | Out-File -FilePath body.log -Encoding utf8
           Get-Content body.log -Raw | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Encoding utf8
           gh issue create --repo $env:GITHUB_REPOSITORY --title "Windows build failure ($env:GITHUB_SHA)" --body-file body.log
