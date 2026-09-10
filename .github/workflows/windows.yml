@@ -7,7 +7,9 @@ on:
 
 jobs:
   build-msvc:
-    runs-on: windows-latest
+    # Qt 6.5.x headers use stdext::checked_array_iterator, which was removed in
+    # MSVC 14.51 (VS 18, current windows-latest image). Pin to the VS 2022 image.
+    runs-on: windows-2022
     permissions:
       contents: read
       issues: write
